@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ evento.nome_noivo|default:"Jullio Cesar" }} &amp; {{ evento.nome_noiva|default:"Gabriella" }} — Nosso Casamento</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Poppins:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            marsala: '#8A1538',
+            gold: '#D4AF37',
+            offwhite: '#FAF8F5',
+            cream: '#F5F1EC',
+            stone: { 50: '#FAFAF9', 100: '#F5F5F4', 200: '#E7E5E4', 300: '#D6D3D1' }
+          },
+          fontFamily: {
+            cormorant: ['"Cormorant Garamond"', 'serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Poppins', sans-serif; }
+    .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+    .texture-paper {
+      background-color: #FAF8F5;
+      background-image: radial-gradient(#8A1538 0.5px, transparent 0.5px);
+      background-size: 32px 32px;
+      opacity: 0.03;
+    }
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+    .reveal.delay-1 { transition-delay: 0.1s; }
+    .reveal.delay-2 { transition-delay: 0.2s; }
+    .reveal.delay-3 { transition-delay: 0.3s; }
+    .reveal.animate-visible { opacity: 1; transform: translateY(0); }
+    .btn-shine { position: relative; overflow: hidden; }
+    .btn-shine::after {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transition: 0.6s ease;
+    }
+    .btn-shine:hover::after { left: 100%; }
+    .input-lux {
+      background: transparent; border-bottom: 1px solid #D6D3D1; padding: 0.75rem 0.25rem;
+      width: 100%; outline: none; transition: border-color 0.4s ease;
+      font-family: 'Poppins', sans-serif; font-size: 0.95rem; color: #44403C;
+    }
+    .input-lux::placeholder { color: #A8A29E; }
+    .input-lux:focus { border-bottom-color: #8A1538; }
+    textarea.input-lux { resize: vertical; min-height: 80px; border: 1px solid #D6D3D1; border-radius: 0.25rem; padding: 0.75rem; }
+    textarea.input-lux:focus { border-color: #8A1538; }
+    select.input-lux { border: 1px solid #D6D3D1; border-radius: 0.25rem; }
+    .timeline-line::before {
+      content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+      background: linear-gradient(to bottom, transparent, #D4AF37, transparent);
+      transform: translateX(-50%); opacity: 0.6;
+    }
+    @media (max-width: 768px) { .timeline-line::before { left: 1.5rem; } }
+    .masonry-item { break-inside: avoid; }
+    @keyframes float { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(8px); opacity: 1; } }
+    .scroll-indicator { animation: float 2s ease-in-out infinite; }
+    .parallax-slow { will-change: transform; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #FAF8F5; }
+    ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #8A1538; }
+    .errorlist { color: #B91C1C; font-size: 0.75rem; list-style: none; padding: 0; margin-top: 0.25rem; }
+  </style>
+</head>
+<body class="bg-offwhite text-stone-700 antialiased selection:bg-marsala selection:text-white overflow-x-hidden">
+  {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,650 @@
+{% extends "convite/base.html" %}
+{% load static %}
+
+{% block content %}
+
+  <!-- HERO -->
+  <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 py-16">
+    <div class="absolute inset-0 texture-paper pointer-events-none"></div>
+
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04]">
+      <svg width="480" height="480" viewBox="0 0 100 100" fill="none" stroke="#8A1538" stroke-width="0.8">
+        <line x1="50" y1="15" x2="50" y2="85"/>
+        <line x1="25" y1="38" x2="75" y2="38"/>
+        <line x1="38" y1="38" x2="38" y2="28"/>
+        <line x1="62" y1="38" x2="62" y2="28"/>
+      </svg>
+    </div>
+
+    <svg class="absolute -top-10 -left-10 md:top-0 md:left-0 text-marsala opacity-[0.04] w-64 h-64 md:w-96 md:h-96 parallax-slow" data-speed="0.2" viewBox="0 0 200 200" fill="currentColor">
+      <path d="M100,30 C70,30 50,60 50,90 C50,120 80,145 100,160 C120,145 150,120 150,90 C150,60 130,30 100,30 Z M100,50 C120,50 130,70 130,90 C130,110 110,125 100,135 C90,125 70,110 70,90 C70,70 80,50 100,50 Z"/>
+      <circle cx="100" cy="90" r="6" fill="#D4AF37" opacity="0.6"/>
+      <path d="M100,160 C90,180 70,200 50,190 M100,160 C110,180 130,200 150,190 M50,90 C30,80 10,90 20,110 M150,90 C170,80 190,90 180,110 M70,50 C60,30 70,10 90,20 M130,50 C140,30 130,10 110,20" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.7"/>
+    </svg>
+    <svg class="absolute -bottom-10 -right-10 md:bottom-0 md:right-0 text-marsala opacity-[0.04] w-64 h-64 md:w-96 md:h-96 parallax-slow" data-speed="0.15" viewBox="0 0 200 200" fill="currentColor">
+      <path d="M100,30 C70,30 50,60 50,90 C50,120 80,145 100,160 C120,145 150,120 150,90 C150,60 130,30 100,30 Z M100,50 C120,50 130,70 130,90 C130,110 110,125 100,135 C90,125 70,110 70,90 C70,70 80,50 100,50 Z"/>
+      <circle cx="100" cy="90" r="6" fill="#D4AF37" opacity="0.6"/>
+    </svg>
+
+    <div class="absolute top-8 right-8 md:top-16 md:right-16 opacity-10 pointer-events-none parallax-slow" data-speed="0.1">
+      <svg width="120" height="120" viewBox="0 0 100 100" fill="none" stroke="#D4AF37" stroke-width="1">
+        <path d="M10,50 Q30,10 50,50 T90,50"/>
+        <path d="M10,60 Q30,20 50,60 T90,60"/>
+      </svg>
+    </div>
+    <div class="absolute bottom-8 left-8 md:bottom-16 md:left-16 opacity-10 pointer-events-none parallax-slow" data-speed="0.12">
+      <svg width="120" height="120" viewBox="0 0 100 100" fill="none" stroke="#D4AF37" stroke-width="1">
+        <path d="M90,50 Q70,10 50,50 T10,50"/>
+        <path d="M90,60 Q70,20 50,60 T10,60"/>
+      </svg>
+    </div>
+
+    <div class="relative z-10 text-center max-w-4xl mx-auto">
+      <div class="reveal">
+        <div class="inline-flex items-center justify-center w-28 h-28 md:w-36 md:h-36 rounded-full border border-gold/30 mb-6 bg-white/40 backdrop-blur-sm shadow-sm">
+          <span class="font-cormorant text-6xl md:text-7xl text-marsala font-light tracking-widest leading-none mt-2">{{ evento.iniciais|default:"JG" }}</span>
+        </div>
+      </div>
+
+      <div class="reveal delay-1">
+        <h2 class="font-cormorant text-2xl md:text-3xl text-stone-800 tracking-[0.25em] uppercase font-medium">{{ evento.nome_noivo|default:"Jullio Cesar" }}</h2>
+        <div class="font-cormorant text-4xl md:text-6xl text-gold my-2 italic font-light">&</div>
+        <h2 class="font-cormorant text-2xl md:text-3xl text-stone-800 tracking-[0.25em] uppercase font-medium">{{ evento.nome_noiva|default:"Gabriella" }}</h2>
+      </div>
+
+      <div class="my-8 flex justify-center reveal delay-2">
+        <div class="h-px w-24 bg-gradient-to-r from-transparent via-gold to-transparent"></div>
+      </div>
+
+      <p class="font-cormorant italic text-xl md:text-2xl text-marsala/90 mb-4 reveal delay-2">
+        Com a bênção de Deus e de nossas famílias...
+      </p>
+
+      <p class="max-w-2xl mx-auto text-stone-600 leading-[1.8] text-sm md:text-base font-light mb-8 reveal delay-3">
+        {{ evento.mensagem_convite }}
+      </p>
+
+      <div class="mb-10 reveal delay-3">
+        <div class="flex items-center justify-center gap-3 mb-2">
+          <span class="h-px w-8 bg-gold/40"></span>
+          <i data-lucide="cross" class="w-4 h-4 text-gold"></i>
+          <span class="h-px w-8 bg-gold/40"></span>
+        </div>
+        <p class="font-cormorant text-3xl md:text-4xl text-marsala tracking-wide">{{ evento.data_hora|date:"d \d\e F \d\e Y" }}</p>
+        <p class="text-stone-500 text-sm mt-2 tracking-widest uppercase">{{ evento.data_hora|date:"l" }}</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 reveal delay-3">
+        <a href="#rsvp" class="btn-shine inline-flex items-center gap-2 px-8 py-3 bg-marsala text-white text-sm tracking-[0.15em] uppercase rounded-sm hover:bg-marsala/90 transition-colors shadow-lg shadow-marsala/20">
+          <i data-lucide="heart" class="w-4 h-4"></i>
+          Confirmar Presença
+        </a>
+        <a href="#presentes" class="inline-flex items-center gap-2 px-8 py-3 border border-marsala text-marsala text-sm tracking-[0.15em] uppercase rounded-sm hover:bg-marsala hover:text-white transition-all duration-500">
+          <i data-lucide="gift" class="w-4 h-4"></i>
+          Lista de Presentes
+        </a>
+      </div>
+    </div>
+
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-marsala/60 scroll-indicator">
+      <span class="text-[10px] uppercase tracking-[0.2em]">Rolar</span>
+      <i data-lucide="chevron-down" class="w-5 h-5"></i>
+    </div>
+  </section>
+
+  <!-- CONTADOR -->
+  <section class="py-14 bg-white border-y border-gold/10 relative overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.02]">
+      <i data-lucide="heart" class="w-[500px] h-[500px] text-marsala"></i>
+    </div>
+    <div class="max-w-5xl mx-auto px-6 relative z-10">
+      <div class="text-center mb-10 reveal">
+        <p class="font-cormorant text-gold italic text-lg mb-1">Faltam apenas</p>
+        <h3 class="font-cormorant text-3xl text-marsala tracking-wide">Para o Nosso Sim</h3>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8" id="countdown" data-target="{{ evento.data_hora|date:'c' }}">
+        <div class="reveal delay-1 text-center p-6 rounded-lg bg-offwhite border border-gold/10">
+          <div class="font-cormorant text-5xl md:text-6xl text-marsala font-light leading-none" id="days">00</div>
+          <div class="text-xs uppercase tracking-[0.2em] text-stone-500 mt-3">Dias</div>
+        </div>
+        <div class="reveal delay-2 text-center p-6 rounded-lg bg-offwhite border border-gold/10">
+          <div class="font-cormorant text-5xl md:text-6xl text-marsala font-light leading-none" id="hours">00</div>
+          <div class="text-xs uppercase tracking-[0.2em] text-stone-500 mt-3">Horas</div>
+        </div>
+        <div class="reveal delay-3 text-center p-6 rounded-lg bg-offwhite border border-gold/10">
+          <div class="font-cormorant text-5xl md:text-6xl text-marsala font-light leading-none" id="minutes">00</div>
+          <div class="text-xs uppercase tracking-[0.2em] text-stone-500 mt-3">Minutos</div>
+        </div>
+        <div class="reveal text-center p-6 rounded-lg bg-offwhite border border-gold/10">
+          <div class="font-cormorant text-5xl md:text-6xl text-marsala font-light leading-none" id="seconds">00</div>
+          <div class="text-xs uppercase tracking-[0.2em] text-stone-500 mt-3">Segundos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERSÍCULO -->
+  <section class="relative py-24 md:py-32 bg-marsala overflow-hidden">
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.04]">
+      <svg width="400" height="200" viewBox="0 0 100 100" fill="none" stroke="#D4AF37" stroke-width="0.6">
+        <line x1="50" y1="10" x2="50" y2="90"/>
+        <line x1="20" y1="30" x2="80" y2="30"/>
+        <line x1="35" y1="10" x2="35" y2="20"/>
+        <line x1="65" y1="10" x2="65" y2="20"/>
+        <path d="M50,90 L55,70 L50,75 L45,70 Z" fill="currentColor"/>
+      </svg>
+    </div>
+    <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+      <i data-lucide="quote" class="w-10 h-10 text-gold opacity-60 mx-auto mb-8 reveal"></i>
+      <p class="font-cormorant text-2xl md:text-4xl text-offwhite italic leading-[1.6] mb-8 reveal">
+        {{ evento.versiculo_texto }}
+      </p>
+      <div class="reveal delay-1">
+        <span class="text-gold text-sm tracking-[0.3em] uppercase font-medium">{{ evento.versiculo_referencia }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CERIMÔNIA / LOCAIS -->
+  <section id="cerimonia" class="py-20 md:py-28 bg-offwhite relative">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <i data-lucide="church" class="w-6 h-6 text-marsala opacity-60 mx-auto mb-3"></i>
+        <h3 class="font-cormorant text-4xl md:text-5xl text-marsala mb-2">Nossa Celebração</h3>
+        <div class="h-px w-16 bg-gold/40 mx-auto mt-4"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {% for local in locais %}
+        <div class="bg-white rounded-lg p-8 border border-gold/10 flex flex-col items-center text-center hover:-translate-y-1 hover:shadow-lg transition-all duration-500 reveal delay-{{ forloop.counter0|add:1 }}">
+          <div class="w-12 h-12 rounded-full bg-offwhite flex items-center justify-center mb-4 text-marsala">
+            <i data-lucide="{{ local.icone }}" class="w-5 h-5"></i>
+          </div>
+          <span class="text-xs uppercase tracking-[0.2em] text-stone-400 mb-1">{{ local.titulo }}</span>
+          <p class="font-cormorant text-2xl text-stone-800">{{ local.descricao }}</p>
+        </div>
+        {% empty %}
+        <p class="text-center text-stone-400 col-span-2">Nenhuma informação cadastrada ainda.</p>
+        {% endfor %}
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 reveal">
+        {% for local in locais %}
+          {% if local.link_maps %}
+          <a href="{{ local.link_maps }}" target="_blank" class="inline-flex items-center gap-2 px-8 py-3 border border-marsala text-marsala text-sm tracking-[0.15em] uppercase rounded-sm hover:bg-marsala hover:text-white transition-all duration-500">
+            <i data-lucide="navigation" class="w-4 h-4"></i>
+            Ver Localização{% if local.subtipo_local %} {{ local.get_subtipo_local_display }}{% endif %}
+          </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if evento.permitir_fotos_convidados %}
+      <div class="mt-14 max-w-md mx-auto reveal">
+        <div class="bg-white rounded-lg border border-gold/10 p-6 text-center">
+          <i data-lucide="camera" class="w-6 h-6 text-marsala mx-auto mb-2 opacity-70"></i>
+          <h4 class="font-cormorant text-2xl text-marsala mb-1">Compartilhe sua visão</h4>
+          <p class="text-stone-500 text-xs font-light mb-5">Suba uma foto sua da cerimônia para compor nossa galeria.</p>
+
+          <form id="fotoConvidadoForm" class="space-y-4 text-left" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ foto_form.nome_convidado }}
+            {{ foto_form.imagem }}
+            <button type="submit" class="btn-shine w-full py-3 bg-marsala text-white text-xs tracking-[0.2em] uppercase rounded-sm hover:bg-marsala/90 transition-all duration-300 flex items-center justify-center gap-2">
+              <i data-lucide="upload" class="w-4 h-4"></i>
+              Enviar Foto
+            </button>
+            <p id="fotoConvidadoErro" class="hidden text-red-600 text-xs text-center"></p>
+          </form>
+
+          <div id="fotoConvidadoSuccess" class="hidden text-center py-2">
+            <i data-lucide="check-circle" class="w-6 h-6 text-green-600 mx-auto mb-2"></i>
+            <p class="text-green-600 text-xs font-medium">Foto enviada! Obrigado por compartilhar.</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- CONFIRMAÇÃO DE PRESENÇA -->
+  <section id="rsvp" class="py-20 md:py-28 bg-white relative">
+    <div class="absolute inset-0 pointer-events-none texture-paper"></div>
+    <div class="max-w-2xl mx-auto px-6 relative z-10">
+      <div class="bg-white p-8 md:p-12 rounded-xl border border-gold/15 shadow-sm relative overflow-hidden">
+        <div class="absolute -top-6 -right-6 text-marsala opacity-[0.03]">
+          <svg width="160" height="160" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50,20 C30,20 20,40 20,60 C20,80 40,90 50,90 C60,90 80,80 80,60 C80,40 70,20 50,20 Z"/>
+          </svg>
+        </div>
+
+        <div class="text-center mb-10 reveal">
+          <i data-lucide="heart-handshake" class="w-6 h-6 text-marsala mx-auto mb-3 opacity-70"></i>
+          <h3 class="font-cormorant text-3xl md:text-4xl text-marsala">Confirme sua Presença</h3>
+          <p class="text-stone-500 text-sm font-light mt-3">Sua presença é muito importante para nós.</p>
+        </div>
+
+        <form id="rsvpForm" class="space-y-8 reveal delay-1" method="post" action="{% url 'convite:rsvp_submit' %}">
+          {% csrf_token %}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label class="block text-xs uppercase tracking-[0.15em] text-stone-400 mb-2">Nome Completo</label>
+              {{ form.nome_completo }}
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-[0.15em] text-stone-400 mb-2">Telefone</label>
+              {{ form.telefone }}
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-[0.15em] text-stone-400 mb-2">Quantidade de Convidados</label>
+            {{ form.quantidade_convidados }}
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-[0.15em] text-stone-400 mb-2">Mensagem para os Noivos</label>
+            {{ form.mensagem }}
+          </div>
+
+          <button type="submit" class="btn-shine w-full py-4 bg-marsala text-white text-sm tracking-[0.2em] uppercase rounded-sm hover:bg-marsala/90 transition-all duration-300 shadow-md shadow-marsala/10 flex items-center justify-center gap-2">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            Confirmar Presença
+          </button>
+        </form>
+
+        <div id="rsvpSuccess" class="hidden text-center py-8 reveal">
+          <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4 text-green-600">
+            <i data-lucide="check" class="w-8 h-8"></i>
+          </div>
+          <h4 class="font-cormorant text-2xl text-marsala mb-2">Obrigado!</h4>
+          <p class="text-stone-500 font-light">Sua presença tornará esse dia ainda mais especial.</p>
+          <p class="text-xs text-stone-400 mt-4 italic">Que Deus abençoe você.</p>
+          <a href="#presentes" class="inline-flex items-center gap-2 px-8 py-3 border border-marsala text-marsala text-sm tracking-[0.15em] uppercase rounded-sm hover:bg-marsala hover:text-white transition-all duration-500">
+            <i data-lucide="gift" class="w-4 h-4"></i>
+            Lista de Presentes
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTA DE PRESENTES -->
+  <section id="presentes" class="py-20 md:py-28 bg-offwhite">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-16 reveal">
+        <i data-lucide="gift" class="w-6 h-6 text-marsala opacity-60 mx-auto mb-3"></i>
+        <h3 class="font-cormorant text-4xl md:text-5xl text-marsala mb-4">Lista de Presentes</h3>
+        <p class="text-stone-500 font-light max-w-lg mx-auto text-sm leading-relaxed">
+          Se desejar nos presentear, nossa lista foi pensada com carinho para ajudar na construção do nosso lar.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for presente in presentes %}
+        <div class="bg-white rounded-lg overflow-hidden border border-gold/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group reveal {% cycle '' 'delay-1' 'delay-2' %}">
+          <div class="h-56 bg-gradient-to-br from-cream to-offwhite relative overflow-hidden flex items-center justify-center">
+            {% if presente.imagem %}
+              <img src="{{ presente.imagem.url }}" alt="{{ presente.titulo }}" class="w-full h-full object-cover">
+            {% else %}
+              <div class="absolute inset-0 opacity-[0.05]" style="background-image: radial-gradient(#8A1538 1px, transparent 1px); background-size: 20px 20px;"></div>
+              <i data-lucide="{{ presente.icone }}" class="w-12 h-12 text-marsala/20 group-hover:text-marsala/30 transition-colors duration-500"></i>
+            {% endif %}
+          </div>
+          <div class="p-6 text-center">
+            <h4 class="font-cormorant text-xl text-stone-800 mb-1">{{ presente.titulo }}</h4>
+            <p class="font-cormorant text-gold text-lg mb-4">{{ presente.valor_exibicao }}</p>
+            <button
+              class="pix-trigger inline-flex items-center gap-2 px-6 py-2 border border-marsala text-marsala text-xs tracking-[0.15em] uppercase rounded-sm hover:bg-marsala hover:text-white transition-all duration-300"
+              data-titulo="{{ presente.titulo }}"
+              data-id="{{ presente.pk }}">
+              <i data-lucide="heart" class="w-3 h-3"></i>
+              Presentear via PIX
+            </button>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-stone-400 col-span-3">Lista de presentes ainda não cadastrada.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIA -->
+  <section class="py-20 md:py-28 bg-white relative">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center mb-14 reveal">
+        <i data-lucide="camera" class="w-6 h-6 text-marsala opacity-60 mx-auto mb-3"></i>
+        <h3 class="font-cormorant text-4xl md:text-5xl text-marsala">Galeria</h3>
+      </div>
+
+      <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4 reveal" id="galleryGrid">
+        {% for foto in fotos %}
+        <div class="masonry-item group relative rounded-lg overflow-hidden cursor-pointer bg-stone-100" onclick="openLightbox('{{ foto.imagem.url|default:'' }}')">
+          <div class="aspect-[3/4] bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
+            {% if foto.imagem %}
+              <img src="{{ foto.imagem.url }}" alt="{{ foto.legenda }}" class="w-full h-full object-cover">
+            {% else %}
+              <span class="font-cormorant text-2xl text-stone-300 select-none">{{ foto.legenda|default:"Foto em breve" }}</span>
+            {% endif %}
+          </div>
+          <div class="absolute inset-0 bg-marsala/0 group-hover:bg-marsala/10 transition-all duration-500"></div>
+        </div>
+        {% empty %}
+        <p class="text-center text-stone-400">Fotos serão adicionadas em breve.</p>
+        {% endfor %}
+      </div>
+
+      <p class="text-center text-stone-400 text-xs mt-8 italic">Mais fotos serão adicionadas após o grande dia.</p>
+    </div>
+  </section>
+
+  <!-- MENSAGEM DOS NOIVOS -->
+  <section class="py-20 md:py-28 bg-offwhite relative">
+    <div class="absolute inset-0 texture-paper pointer-events-none"></div>
+    <div class="max-w-3xl mx-auto px-6 text-center relative z-10">
+      <i data-lucide="quote" class="w-8 h-8 text-gold mx-auto mb-6 opacity-60 reveal"></i>
+      <p class="font-cormorant text-xl md:text-3xl italic text-stone-700 leading-[1.7] mb-10 reveal">
+        {{ evento.mensagem_final }}
+      </p>
+      <div class="reveal delay-1">
+        <div class="h-px w-12 bg-gold/40 mx-auto mb-4"></div>
+        <p class="font-cormorant text-marsala text-xl tracking-wide">{{ evento.nome_noivo|default:"Jullio Cesar" }} <span class="text-gold mx-2">&</span> {{ evento.nome_noiva|default:"Gabriella" }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- RODAPÉ -->
+  <footer class="bg-marsala py-14 px-6 text-center relative overflow-hidden">
+    <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+      <span class="font-cormorant text-[12rem] text-white leading-none select-none">{{ evento.iniciais|default:"JG" }}</span>
+    </div>
+
+    <div class="relative z-10">
+      <span class="font-cormorant text-4xl text-gold tracking-widest block mb-4">{{ evento.iniciais|default:"JG" }}</span>
+      <p class="text-offwhite/70 text-sm font-light leading-relaxed max-w-md mx-auto mb-3">
+        Feito com amor para celebrar um dos dias mais importantes de nossas vidas.
+      </p>
+      <p class="text-offwhite/50 text-xs italic">Que Deus abençoe nossa união.</p>
+      <div class="mt-8 flex items-center justify-center gap-4 opacity-30">
+        <i data-lucide="cross" class="w-4 h-4 text-gold"></i>
+        <span class="text-gold text-xs tracking-[0.3em] uppercase">{{ evento.data_hora|date:"d . m . Y" }}</span>
+        <i data-lucide="cross" class="w-4 h-4 text-gold"></i>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL PIX -->
+  <div id="pixModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-900/50 backdrop-blur-sm px-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-10 relative border border-gold/20 transform transition-all duration-300 scale-95 opacity-0" id="pixModalContent">
+      <button onclick="closePixModal()" class="absolute top-4 right-4 text-stone-400 hover:text-marsala transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <i data-lucide="gift" class="w-8 h-8 text-marsala mx-auto mb-3"></i>
+        <h4 id="pixItemTitle" class="font-cormorant text-2xl text-stone-800">Presente</h4>
+        <p class="text-xs text-stone-400 uppercase tracking-widest mt-1">Pagamento via PIX</p>
+      </div>
+
+      <!-- Passo 1: nome de quem está presenteando -->
+      <div id="pixStepNome">
+        <label class="block text-xs uppercase tracking-[0.15em] text-stone-400 mb-2">Seu nome</label>
+        <input type="text" id="pixNomeInput" class="input-lux mb-2" placeholder="Quem está presenteando?" />
+        <p id="pixNomeErro" class="hidden text-red-600 text-xs mb-4"></p>
+        <button type="button" onclick="confirmarNomePresenteador()" class="btn-shine w-full py-3 mt-4 bg-marsala text-white text-xs tracking-[0.2em] uppercase rounded-sm hover:bg-marsala/90 transition-all duration-300 flex items-center justify-center gap-2">
+          <i data-lucide="qr-code" class="w-4 h-4"></i>
+          Gerar QR Code PIX
+        </button>
+      </div>
+
+      <!-- Passo 2: QR Code gerado -->
+      <div id="pixStepQr" class="hidden">
+        <div class="bg-offwhite rounded-lg p-6 flex flex-col items-center justify-center mb-6 border border-gold/10">
+          <div class="w-48 h-48 bg-white rounded-md shadow-inner p-2 mb-3 border border-stone-100 flex items-center justify-center" id="pixQrContainer"></div>
+          <p class="text-xs text-stone-500">Escaneie o QR Code acima</p>
+        </div>
+
+        <div class="flex items-center justify-center gap-2 mb-6">
+          <div class="bg-stone-100 rounded px-4 py-2 text-sm text-stone-700 font-mono break-all" id="pixKeyDisplay"></div>
+          <button onclick="copyPix()" class="p-2 rounded hover:bg-stone-100 text-marsala transition-colors" title="Copiar chave">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <p class="text-center text-stone-500 text-sm italic leading-relaxed font-light">
+          Muito obrigado por fazer parte da construção da nossa nova família. Que Deus lhe retribua com muitas bênçãos.
+        </p>
+
+        <div id="copyFeedback" class="hidden text-center mt-3 text-green-600 text-xs font-medium">Chave PIX copiada!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-950/90 backdrop-blur-sm p-4" onclick="closeLightbox()">
+    <div class="relative max-w-4xl w-full max-h-[85vh] flex items-center justify-center" onclick="event.stopPropagation()">
+      <div class="bg-white rounded-lg p-2 shadow-2xl">
+        <div class="bg-stone-100 rounded flex items-center justify-center min-h-[300px] min-w-[300px] md:min-h-[500px] md:min-w-[600px]" id="lightboxContent">
+          <span class="font-cormorant text-4xl text-stone-300 select-none">Foto em breve</span>
+        </div>
+      </div>
+      <button onclick="closeLightbox()" class="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-8 h-8"></i>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // Contador regressivo, agora usando a data vinda do banco (data-target)
+    const countdownEl = document.getElementById('countdown');
+    const targetDate = new Date(countdownEl.dataset.target).getTime();
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetDate - now;
+      if (isNaN(targetDate) || diff <= 0) {
+        ['days','hours','minutes','seconds'].forEach(id => document.getElementById(id).textContent = '00');
+        return;
+      }
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+      document.getElementById('days').textContent = String(d).padStart(2, '0');
+      document.getElementById('hours').textContent = String(h).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    const parallaxElements = document.querySelectorAll('.parallax-slow');
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      parallaxElements.forEach(el => {
+        const speed = parseFloat(el.dataset.speed) || 0.1;
+        el.style.transform = `translateY(${scrollY * speed}px)`;
+      });
+    });
+
+    // Form RSVP — envia via fetch para a view Django e troca pela mensagem de sucesso
+    const rsvpForm = document.getElementById('rsvpForm');
+    rsvpForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(rsvpForm);
+      fetch(rsvpForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            rsvpForm.classList.add('hidden');
+            const success = document.getElementById('rsvpSuccess');
+            success.classList.remove('hidden');
+            success.classList.add('animate-visible');
+          } else {
+            alert('Verifique os campos do formulário e tente novamente.');
+          }
+        })
+        .catch(() => alert('Não foi possível enviar agora. Tente novamente em instantes.'));
+    });
+
+    // Modal PIX — passo 1 pede o nome de quem presenteia, passo 2 mostra o QR Code
+    // real gerado no backend (payload PIX oficial, não é mais um desenho estático).
+    const pixModal = document.getElementById('pixModal');
+    const pixContent = document.getElementById('pixModalContent');
+    const pixTitle = document.getElementById('pixItemTitle');
+    const pixKeyDisplay = document.getElementById('pixKeyDisplay');
+    let currentPresenteId = null;
+    let currentPixKey = '';
+
+    function getCsrfToken() {
+      const el = document.querySelector('[name=csrfmiddlewaretoken]');
+      return el ? el.value : '';
+    }
+
+    document.querySelectorAll('.pix-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openPixModal(btn.dataset.titulo, btn.dataset.id);
+      });
+    });
+
+    function openPixModal(title, presenteId) {
+      pixTitle.textContent = title;
+      currentPresenteId = presenteId;
+      document.getElementById('pixNomeInput').value = '';
+      document.getElementById('pixNomeErro').classList.add('hidden');
+      document.getElementById('pixStepNome').classList.remove('hidden');
+      document.getElementById('pixStepQr').classList.add('hidden');
+      pixModal.classList.remove('hidden');
+      pixModal.classList.add('flex');
+      setTimeout(() => {
+        pixContent.classList.remove('scale-95', 'opacity-0');
+        pixContent.classList.add('scale-100', 'opacity-100');
+      }, 10);
+      lucide.createIcons();
+    }
+
+    function closePixModal() {
+      pixContent.classList.remove('scale-100', 'opacity-100');
+      pixContent.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        pixModal.classList.add('hidden');
+        pixModal.classList.remove('flex');
+      }, 300);
+    }
+
+    function confirmarNomePresenteador() {
+      const nome = document.getElementById('pixNomeInput').value.trim();
+      const erroEl = document.getElementById('pixNomeErro');
+      if (!nome) {
+        erroEl.textContent = 'Digite seu nome para continuar.';
+        erroEl.classList.remove('hidden');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('nome_presenteador', nome);
+      formData.append('csrfmiddlewaretoken', getCsrfToken());
+
+      fetch(`/presentes/${currentPresenteId}/pix/`, { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            currentPixKey = data.chave_pix;
+            pixKeyDisplay.textContent = data.chave_pix;
+            document.getElementById('pixQrContainer').innerHTML =
+              `<img src="data:image/png;base64,${data.qrcode_base64}" class="w-full h-full object-contain" alt="QR Code PIX">`;
+            document.getElementById('copyFeedback').classList.add('hidden');
+            document.getElementById('pixStepNome').classList.add('hidden');
+            document.getElementById('pixStepQr').classList.remove('hidden');
+            lucide.createIcons();
+          } else {
+            erroEl.textContent = data.erro || 'Não foi possível gerar o QR Code. Tente novamente.';
+            erroEl.classList.remove('hidden');
+          }
+        })
+        .catch(() => {
+          erroEl.textContent = 'Erro ao gerar o QR Code. Tente novamente.';
+          erroEl.classList.remove('hidden');
+        });
+    }
+
+    function copyPix() {
+      navigator.clipboard.writeText(currentPixKey).then(() => {
+        document.getElementById('copyFeedback').classList.remove('hidden');
+      }).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = currentPixKey;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        document.getElementById('copyFeedback').classList.remove('hidden');
+      });
+    }
+
+    // Upload de fotos pelos convidados (só existe na página se o admin ativou a opção)
+    const fotoConvidadoForm = document.getElementById('fotoConvidadoForm');
+    if (fotoConvidadoForm) {
+      fotoConvidadoForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const erroEl = document.getElementById('fotoConvidadoErro');
+        erroEl.classList.add('hidden');
+        const formData = new FormData(fotoConvidadoForm);
+        fetch("{% url 'convite:foto_convidado_upload' %}", { method: 'POST', body: formData })
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) {
+              fotoConvidadoForm.classList.add('hidden');
+              document.getElementById('fotoConvidadoSuccess').classList.remove('hidden');
+              lucide.createIcons();
+            } else {
+              erroEl.textContent = data.erro || 'Verifique os campos e tente novamente.';
+              erroEl.classList.remove('hidden');
+            }
+          })
+          .catch(() => {
+            erroEl.textContent = 'Não foi possível enviar a foto agora. Tente novamente.';
+            erroEl.classList.remove('hidden');
+          });
+      });
+    }
+
+    // Lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lightboxContent = document.getElementById('lightboxContent');
+    function openLightbox(imageUrl) {
+      if (imageUrl) {
+        lightboxContent.innerHTML = `<img src="${imageUrl}" class="max-h-[75vh] rounded object-contain">`;
+      }
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+    }
+    function closeLightbox() {
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closePixModal();
+        closeLightbox();
+      }
+    });
+  </script>
+{% endblock %}

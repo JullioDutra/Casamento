@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel dos Noivos — Convidados</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+    .badge-confirmado { background: #ECFDF5; color: #059669; }
+    .badge-pendente { background: #FEF3C7; color: #B45309; }
+  </style>
+</head>
+<body class="min-h-screen bg-stone-50 text-stone-700">
+
+  <!-- Cabeçalho -->
+  <header class="bg-[#8A1538] text-white">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
+      <div>
+        <span class="font-cormorant text-3xl block">Painel dos Noivos</span>
+        <span class="text-white/60 text-xs uppercase tracking-[0.2em]">Controle de convidados</span>
+      </div>
+      <form method="post" action="{% url 'painel:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-white/80 hover:text-white transition-colors">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          Sair
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+    <!-- Mensagens -->
+    {% if messages %}
+      <div class="space-y-2">
+        {% for message in messages %}
+          <div class="rounded-lg px-4 py-3 text-sm
+            {% if message.tags == 'success' %} bg-green-50 text-green-700
+            {% elif message.tags == 'error' %} bg-red-50 text-red-700
+            {% elif message.tags == 'warning' %} bg-amber-50 text-amber-700
+            {% else %} bg-blue-50 text-blue-700 {% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Cards de estatísticas -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
+        <p class="font-cormorant text-3xl text-[#8A1538]">{{ total_lista }}</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Na lista</p>
+      </div>
+      <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
+        <p class="font-cormorant text-3xl text-green-600">{{ total_confirmados }}</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Confirmados</p>
+      </div>
+      <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
+        <p class="font-cormorant text-3xl text-amber-600">{{ total_pendentes }}</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Faltam confirmar</p>
+      </div>
+      <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
+        <p class="font-cormorant text-3xl text-[#8A1538]">{{ percentual }}%</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Confirmação</p>
+      </div>
+      <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
+        <p class="font-cormorant text-3xl text-[#8A1538]">{{ total_pessoas_esperadas }}</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Pessoas esperadas</p>
+      </div>
+      <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
+        <p class="font-cormorant text-3xl text-[#8A1538]">{{ total_pessoas_confirmadas_site }}</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Pessoas via RSVP do site</p>
+      </div>
+    </div>
+
+    <!-- Barra de progresso -->
+    <div class="bg-white rounded-lg border border-stone-100 p-5 shadow-sm">
+      <div class="flex justify-between text-xs text-stone-500 mb-2">
+        <span>Progresso das confirmações</span>
+        <span>{{ total_confirmados }} de {{ total_lista }}</span>
+      </div>
+      <div class="w-full h-2.5 bg-stone-100 rounded-full overflow-hidden">
+        <div class="h-full bg-[#8A1538] rounded-full transition-all" style="width: {{ percentual }}%;"></div>
+      </div>
+    </div>
+
+    <!-- Upload de planilha + Adicionar manualmente -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-lg border border-stone-100 p-6 shadow-sm">
+        <h3 class="font-cormorant text-2xl text-[#8A1538] mb-1 flex items-center gap-2">
+          <i data-lucide="upload" class="w-5 h-5"></i>
+          Importar planilha
+        </h3>
+        <p class="text-stone-400 text-xs mb-4">
+          Envie um arquivo .xlsx ou .csv com colunas <strong>Nome</strong> (obrigatória),
+          Telefone, Quantidade e Grupo. Nomes já cadastrados são ignorados automaticamente.
+        </p>
+        <form method="post" action="{% url 'painel:upload_planilha' %}" enctype="multipart/form-data" class="space-y-3">
+          {% csrf_token %}
+          {{ upload_form.arquivo }}
+          <div class="flex items-center gap-3">
+            <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#8A1538] text-white text-xs uppercase tracking-widest rounded-sm hover:bg-[#71102d] transition-colors">
+              <i data-lucide="upload" class="w-4 h-4"></i>
+              Importar
+            </button>
+            <a href="{% url 'painel:modelo_planilha' %}" class="text-xs text-stone-500 hover:text-[#8A1538] underline">
+              Baixar planilha modelo (.csv)
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-lg border border-stone-100 p-6 shadow-sm">
+        <h3 class="font-cormorant text-2xl text-[#8A1538] mb-1 flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5"></i>
+          Adicionar convidado
+        </h3>
+        <p class="text-stone-400 text-xs mb-4">Cadastre manualmente um convidado que não veio da planilha.</p>
+        <form method="post" action="{% url 'painel:adicionar_convidado' %}" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {% csrf_token %}
+          <input type="text" name="nome" placeholder="Nome completo" required class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none sm:col-span-2">
+          <input type="text" name="telefone" placeholder="(00) 00000-0000" class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none">
+          <input type="number" name="quantidade_esperada" placeholder="Qtd. esperada" min="1" value="1" class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none">
+          <input type="text" name="grupo" placeholder="Grupo (ex: Amigos)" class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none sm:col-span-2">
+          <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#8A1538] text-white text-xs uppercase tracking-widest rounded-sm hover:bg-[#71102d] transition-colors sm:col-span-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Adicionar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-lg border border-stone-100 p-5 shadow-sm">
+      <form method="get" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por nome..." class="w-full border border-stone-200 rounded pl-9 pr-3 py-2 text-sm focus:border-[#8A1538] outline-none">
+        </div>
+        <select name="status" class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none">
+          <option value="todos" {% if status_filtro == "todos" %}selected{% endif %}>Todos</option>
+          <option value="confirmados" {% if status_filtro == "confirmados" %}selected{% endif %}>Confirmados</option>
+          <option value="pendentes" {% if status_filtro == "pendentes" %}selected{% endif %}>Faltam confirmar</option>
+        </select>
+        <button type="submit" class="px-5 py-2 bg-stone-800 text-white text-xs uppercase tracking-widest rounded-sm hover:bg-stone-700 transition-colors">
+          Filtrar
+        </button>
+        {% if busca or status_filtro != "todos" %}
+          <a href="{% url 'painel:dashboard' %}" class="px-5 py-2 border border-stone-200 text-stone-500 text-xs uppercase tracking-widest rounded-sm hover:bg-stone-50 transition-colors text-center">
+            Limpar
+          </a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Tabela: Lista de convidados -->
+    <div class="bg-white rounded-lg border border-stone-100 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-stone-100">
+        <h3 class="font-cormorant text-2xl text-[#8A1538]">Lista de Convidados</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+            <tr>
+              <th class="text-left px-6 py-3">Nome</th>
+              <th class="text-left px-6 py-3">Telefone</th>
+              <th class="text-left px-6 py-3">Grupo</th>
+              <th class="text-center px-6 py-3">Qtd.</th>
+              <th class="text-center px-6 py-3">Status</th>
+              <th class="text-right px-6 py-3">Ações</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-stone-100">
+            {% for linha in linhas %}
+            <tr class="hover:bg-stone-50/60">
+              <td class="px-6 py-3 font-medium text-stone-800">
+                {{ linha.obj.nome }}
+                {% if linha.obj.observacoes %}
+                  <p class="text-xs text-stone-400 font-normal">{{ linha.obj.observacoes }}</p>
+                {% endif %}
+              </td>
+              <td class="px-6 py-3 text-stone-500">{{ linha.obj.telefone|default:"—" }}</td>
+              <td class="px-6 py-3 text-stone-500">{{ linha.obj.grupo|default:"—" }}</td>
+              <td class="px-6 py-3 text-center text-stone-500">{{ linha.obj.quantidade_esperada }}</td>
+              <td class="px-6 py-3 text-center">
+                {% if linha.confirmado %}
+                  <span class="badge-confirmado text-xs font-medium px-3 py-1 rounded-full">Confirmado</span>
+                  {% if linha.rsvp %}
+                    <p class="text-[10px] text-stone-400 mt-1">via RSVP do site</p>
+                  {% endif %}
+                {% else %}
+                  <span class="badge-pendente text-xs font-medium px-3 py-1 rounded-full">Falta confirmar</span>
+                {% endif %}
+              </td>
+              <td class="px-6 py-3">
+                <div class="flex items-center justify-end gap-2">
+                  <form method="post" action="{% url 'painel:alternar_confirmado' linha.obj.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs px-3 py-1.5 rounded-sm border {% if linha.confirmado %}border-amber-300 text-amber-600 hover:bg-amber-50{% else %}border-green-300 text-green-600 hover:bg-green-50{% endif %} transition-colors">
+                      {% if linha.confirmado %}Marcar pendente{% else %}Marcar confirmado{% endif %}
+                    </button>
+                  </form>
+                  <form method="post" action="{% url 'painel:excluir_convidado' linha.obj.pk %}" onsubmit="return confirm('Remover {{ linha.obj.nome }} da lista?');">
+                    {% csrf_token %}
+                    <button type="submit" class="text-xs px-3 py-1.5 rounded-sm border border-red-200 text-red-500 hover:bg-red-50 transition-colors">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="px-6 py-10 text-center text-stone-400">
+                {% if total_lista == 0 %}
+                  Nenhum convidado cadastrado ainda. Importe sua planilha acima ou adicione manualmente.
+                {% else %}
+                  Nenhum convidado encontrado com esse filtro.
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tabela: RSVPs recebidos pelo site -->
+    <div class="bg-white rounded-lg border border-stone-100 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-stone-100">
+        <h3 class="font-cormorant text-2xl text-[#8A1538]">Confirmações recebidas pelo site</h3>
+        <p class="text-stone-400 text-xs mt-1">Todo envio do formulário de RSVP do site aparece aqui, mesmo que a pessoa ainda não esteja na lista importada.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
+            <tr>
+              <th class="text-left px-6 py-3">Nome</th>
+              <th class="text-left px-6 py-3">Telefone</th>
+              <th class="text-center px-6 py-3">Qtd.</th>
+              <th class="text-left px-6 py-3">Mensagem</th>
+              <th class="text-left px-6 py-3">Recebido em</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-stone-100">
+            {% for rsvp in rsvps %}
+            <tr class="hover:bg-stone-50/60">
+              <td class="px-6 py-3 font-medium text-stone-800">{{ rsvp.nome_completo }}</td>
+              <td class="px-6 py-3 text-stone-500">{{ rsvp.telefone }}</td>
+              <td class="px-6 py-3 text-center text-stone-500">{{ rsvp.quantidade_convidados }}</td>
+              <td class="px-6 py-3 text-stone-500 max-w-xs truncate" title="{{ rsvp.mensagem }}">{{ rsvp.mensagem|default:"—" }}</td>
+              <td class="px-6 py-3 text-stone-400 text-xs">{{ rsvp.criado_em|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="px-6 py-10 text-center text-stone-400">Nenhuma confirmação recebida pelo site ainda.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
