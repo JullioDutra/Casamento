@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel dos Noivos — Convidados</title>
+  <title>Painel dos Noivos — Convidados & Presentes</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -22,7 +22,7 @@
     <div class="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
       <div>
         <span class="font-cormorant text-3xl block">Painel dos Noivos</span>
-        <span class="text-white/60 text-xs uppercase tracking-[0.2em]">Controle de convidados</span>
+        <span class="text-white/60 text-xs uppercase tracking-[0.2em]">Gestão do Casamento</span>
       </div>
       <form method="post" action="{% url 'painel:logout' %}">
         {% csrf_token %}
@@ -75,7 +75,7 @@
       </div>
       <div class="bg-white rounded-lg border border-stone-100 p-5 text-center shadow-sm">
         <p class="font-cormorant text-3xl text-[#8A1538]">{{ total_pessoas_confirmadas_site }}</p>
-        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Pessoas via RSVP do site</p>
+        <p class="text-[11px] uppercase tracking-widest text-stone-400 mt-1">Pessoas via RSVP</p>
       </div>
     </div>
 
@@ -90,38 +90,40 @@
       </div>
     </div>
 
-    <!-- Upload de planilha + Adicionar manualmente -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Ações: Upload, Adicionar Convidado, Adicionar Presente -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Importar Planilha -->
       <div class="bg-white rounded-lg border border-stone-100 p-6 shadow-sm">
         <h3 class="font-cormorant text-2xl text-[#8A1538] mb-1 flex items-center gap-2">
           <i data-lucide="upload" class="w-5 h-5"></i>
           Importar planilha
         </h3>
         <p class="text-stone-400 text-xs mb-4">
-          Envie um arquivo .xlsx ou .csv com colunas <strong>Nome</strong> (obrigatória),
-          Telefone, Quantidade e Grupo. Nomes já cadastrados são ignorados automaticamente.
+          Envie um arquivo .xlsx ou .csv. Nomes já cadastrados são ignorados automaticamente.
         </p>
         <form method="post" action="{% url 'painel:upload_planilha' %}" enctype="multipart/form-data" class="space-y-3">
           {% csrf_token %}
           {{ upload_form.arquivo }}
-          <div class="flex items-center gap-3">
+          <div class="flex flex-col xl:flex-row items-start xl:items-center gap-3 mt-2">
             <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#8A1538] text-white text-xs uppercase tracking-widest rounded-sm hover:bg-[#71102d] transition-colors">
               <i data-lucide="upload" class="w-4 h-4"></i>
               Importar
             </button>
             <a href="{% url 'painel:modelo_planilha' %}" class="text-xs text-stone-500 hover:text-[#8A1538] underline">
-              Baixar planilha modelo (.csv)
+              Baixar modelo (.csv)
             </a>
           </div>
         </form>
       </div>
 
+      <!-- Adicionar Convidado Manualmente -->
       <div class="bg-white rounded-lg border border-stone-100 p-6 shadow-sm">
         <h3 class="font-cormorant text-2xl text-[#8A1538] mb-1 flex items-center gap-2">
           <i data-lucide="user-plus" class="w-5 h-5"></i>
           Adicionar convidado
         </h3>
-        <p class="text-stone-400 text-xs mb-4">Cadastre manualmente um convidado que não veio da planilha.</p>
+        <p class="text-stone-400 text-xs mb-4">Cadastre manualmente um convidado na lista.</p>
         <form method="post" action="{% url 'painel:adicionar_convidado' %}" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {% csrf_token %}
           <input type="text" name="nome" placeholder="Nome completo" required class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none sm:col-span-2">
@@ -134,6 +136,30 @@
           </button>
         </form>
       </div>
+
+      <!-- NOVO: Adicionar Presente (Integração Chave PIX) -->
+      <div class="bg-white rounded-lg border border-stone-100 p-6 shadow-sm">
+        <h3 class="font-cormorant text-2xl text-[#8A1538] mb-1 flex items-center gap-2">
+          <i data-lucide="gift" class="w-5 h-5"></i>
+          Adicionar Presente
+        </h3>
+        <p class="text-stone-400 text-xs mb-4">Adicione itens e defina a chave PIX do presente.</p>
+        <form method="post" action="{% url 'painel:adicionar_presente' %}" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {% csrf_token %}
+          <input type="text" name="titulo" placeholder="Ex: Geladeira, Cota Lua de Mel" required class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none sm:col-span-2">
+          <input type="number" name="valor" step="0.01" placeholder="Valor R$ (Opcional)" class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none">
+          <input type="text" name="icone" placeholder="Ícone (ex: gift, plane)" value="gift" class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none">
+          <input type="text" name="chave_pix" placeholder="Sua Chave PIX" required class="border border-stone-200 rounded px-3 py-2 text-sm focus:border-[#8A1538] outline-none sm:col-span-2">
+          <!-- Campo escondido para enviar o 'disponivel' True por padrão -->
+          <input type="hidden" name="disponivel" value="True">
+          
+          <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#8A1538] text-white text-xs uppercase tracking-widest rounded-sm hover:bg-[#71102d] transition-colors sm:col-span-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            Salvar Presente
+          </button>
+        </form>
+      </div>
+
     </div>
 
     <!-- Filtros -->
@@ -159,10 +185,13 @@
       </form>
     </div>
 
-    <!-- Tabela: Lista de convidados -->
+    <!-- Tabela: Lista de convidados (AGORA COM PAGINAÇÃO E FUZZY MATCHING) -->
     <div class="bg-white rounded-lg border border-stone-100 shadow-sm overflow-hidden">
-      <div class="px-6 py-4 border-b border-stone-100">
-        <h3 class="font-cormorant text-2xl text-[#8A1538]">Lista de Convidados</h3>
+      <div class="px-6 py-4 border-b border-stone-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div>
+            <h3 class="font-cormorant text-2xl text-[#8A1538]">Lista de Convidados</h3>
+            <p class="text-stone-400 text-xs mt-1">Busca inteligente ativada: detecta nomes parecidos entre a lista e o RSVP.</p>
+        </div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
@@ -177,7 +206,8 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-stone-100">
-            {% for linha in linhas %}
+            <!-- Trocado de 'linhas' para 'page_obj' -->
+            {% for linha in page_obj %}
             <tr class="hover:bg-stone-50/60">
               <td class="px-6 py-3 font-medium text-stone-800">
                 {{ linha.obj.nome }}
@@ -229,6 +259,26 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Navegação da Paginação -->
+      {% if page_obj.has_other_pages %}
+      <div class="px-6 py-4 border-t border-stone-100 flex items-center justify-between text-sm bg-stone-50/50">
+          <span class="text-stone-500">Mostrando página <span class="font-medium text-stone-700">{{ page_obj.number }}</span> de <span class="font-medium text-stone-700">{{ page_obj.paginator.num_pages }}</span></span>
+          <div class="flex items-center gap-2">
+              {% if page_obj.has_previous %}
+                  <a href="?page={{ page_obj.previous_page_number }}&busca={{ busca }}&status={{ status_filtro }}" class="px-3 py-1.5 border border-stone-200 bg-white rounded-sm hover:bg-stone-50 text-stone-600 transition-colors text-xs uppercase tracking-wider">
+                      Anterior
+                  </a>
+              {% endif %}
+              {% if page_obj.has_next %}
+                  <a href="?page={{ page_obj.next_page_number }}&busca={{ busca }}&status={{ status_filtro }}" class="px-3 py-1.5 border border-stone-200 bg-white rounded-sm hover:bg-stone-50 text-stone-600 transition-colors text-xs uppercase tracking-wider">
+                      Próxima
+                  </a>
+              {% endif %}
+          </div>
+      </div>
+      {% endif %}
+
     </div>
 
     <!-- Tabela: RSVPs recebidos pelo site -->
