@@ -24,7 +24,7 @@ except ImportError:  # pragma: no cover
 def nomes_similares(nome1, nome2):
     """
     Retorna True se os nomes forem pelo menos 80% parecidos ou se um contiver o outro.
-    Útil para não duplicar confirmações quando há erros de digitação (ex: Ana Maria x Ana Mria).
+    Útil para não duplicar confirmações quando há erros de digitação.
     """
     if not nome1 or not nome2:
         return False
@@ -40,12 +40,13 @@ def dashboard(request):
     page_number = request.GET.get("page", 1)
 
     rsvps = RSVP.objects.all().order_by("-criado_em")
-    total_pessoas_confirmadas_site = sum(r.quantidade_convidados for r in rsvps)
-
+    
     # Pré-computar nomes normalizados dos RSVPs para otimizar o laço
     rsvps_normalizados = [(normalizar_nome(r.nome_completo), r) for r in rsvps]
 
     linhas = []
+    total_pessoas_confirmadas = 0
+
     for c in ConvidadoLista.objects.all():
         nome_c_norm = normalizar_nome(c.nome)
         
@@ -56,13 +57,25 @@ def dashboard(request):
         )
         
         confirmado = c.confirmado_manual or rsvp_correspondente is not None
-        linhas.append({"obj": c, "confirmado": confirmado, "rsvp": rsvp_correspondente})
+        
+        # Prioriza a quantidade que a pessoa informou no RSVP do site
+        qtd_final = rsvp_correspondente.quantidade_convidados if rsvp_correspondente else c.quantidade_esperada
+        
+        if confirmado:
+            total_pessoas_confirmadas += qtd_final
+
+        linhas.append({
+            "obj": c, 
+            "confirmado": confirmado, 
+            "rsvp": rsvp_correspondente,
+            "qtd_final": qtd_final
+        })
 
     total_lista = len(linhas)
-    total_confirmados = sum(1 for l in linhas if l["confirmado"])
-    total_pendentes = total_lista - total_confirmados
+    total_confirmados_familias = sum(1 for l in linhas if l["confirmado"])
+    total_pendentes = total_lista - total_confirmados_familias
     total_pessoas_esperadas = sum(l["obj"].quantidade_esperada for l in linhas)
-    percentual = round((total_confirmados / total_lista) * 100) if total_lista else 0
+    percentual = round((total_confirmados_familias / total_lista) * 100) if total_lista else 0
 
     exibir = linhas
     if status_filtro == "confirmados":
@@ -80,18 +93,18 @@ def dashboard(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        "linhas": page_obj,  # Substituímos a lista completa pela página atual (HTML continua funcionando)
-        "page_obj": page_obj, # Enviado para renderizar os botões Anterior/Próxima
+        "linhas": page_obj,  # Enviado para não quebrar templates antigos (se houver)
+        "page_obj": page_obj, 
         "rsvps": rsvps,
         "total_lista": total_lista,
-        "total_confirmados": total_confirmados,
+        "total_confirmados_familias": total_confirmados_familias,
+        "total_pessoas_confirmadas": total_pessoas_confirmadas,
         "total_pendentes": total_pendentes,
         "total_pessoas_esperadas": total_pessoas_esperadas,
-        "total_pessoas_confirmadas_site": total_pessoas_confirmadas_site,
         "percentual": percentual,
         "upload_form": UploadPlanilhaForm(),
         "manual_form": ConvidadoManualForm(),
-        "presente_form": PresenteForm(), # Form que será renderizado no seu modal/card
+        "presente_form": PresenteForm(),
         "busca": busca,
         "status_filtro": status_filtro,
     }
@@ -244,6 +257,7 @@ def excluir_convidado(request, pk):
 @login_required
 @require_POST
 def adicionar_presente(request):
+    # Aceita request.FILES para fazer o upload correto da imagem
     form = PresenteForm(request.POST, request.FILES)
     if form.is_valid():
         form.save()
