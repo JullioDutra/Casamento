@@ -40,7 +40,7 @@ def dashboard(request):
     page_number = request.GET.get("page", 1)
 
     rsvps = RSVP.objects.all().order_by("-criado_em")
-    total_pessoas_confirmadas_site = sum(r.quantidade_convidados for rsvps)
+    total_pessoas_confirmadas_site = sum(r.quantidade_convidados for r in rsvps)
 
     # Pré-computar nomes normalizados dos RSVPs para otimizar o laço
     rsvps_normalizados = [(normalizar_nome(r.nome_completo), r) for r in rsvps]
