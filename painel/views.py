@@ -1,15 +1,17 @@
 import csv
+import difflib
 import io
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from convite.models import RSVP
 
-from .forms import ConvidadoManualForm, UploadPlanilhaForm
+from .forms import ConvidadoManualForm, UploadPlanilhaForm, PresenteForm
 from .models import ConvidadoLista
 from .utils import normalizar_nome
 
@@ -19,21 +21,40 @@ except ImportError:  # pragma: no cover
     openpyxl = None
 
 
+def nomes_similares(nome1, nome2):
+    """
+    Retorna True se os nomes forem pelo menos 80% parecidos ou se um contiver o outro.
+    Útil para não duplicar confirmações quando há erros de digitação (ex: Ana Maria x Ana Mria).
+    """
+    if not nome1 or not nome2:
+        return False
+    if nome1 in nome2 or nome2 in nome1:
+        return True
+    return difflib.SequenceMatcher(None, nome1, nome2).ratio() > 0.8
+
+
 @login_required
 def dashboard(request):
     busca = request.GET.get("busca", "").strip()
     status_filtro = request.GET.get("status", "todos")
+    page_number = request.GET.get("page", 1)
 
     rsvps = RSVP.objects.all().order_by("-criado_em")
-    total_pessoas_confirmadas_site = sum(r.quantidade_convidados for r in rsvps)
+    total_pessoas_confirmadas_site = sum(r.quantidade_convidados for rsvps)
 
-    rsvp_por_nome = {}
-    for r in rsvps:
-        rsvp_por_nome[normalizar_nome(r.nome_completo)] = r
+    # Pré-computar nomes normalizados dos RSVPs para otimizar o laço
+    rsvps_normalizados = [(normalizar_nome(r.nome_completo), r) for r in rsvps]
 
     linhas = []
     for c in ConvidadoLista.objects.all():
-        rsvp_correspondente = rsvp_por_nome.get(normalizar_nome(c.nome))
+        nome_c_norm = normalizar_nome(c.nome)
+        
+        # Encontra o primeiro RSVP que dê 'match' usando a função flexível
+        rsvp_correspondente = next(
+            (r for r_nome_norm, r in rsvps_normalizados if nomes_similares(nome_c_norm, r_nome_norm)), 
+            None
+        )
+        
         confirmado = c.confirmado_manual or rsvp_correspondente is not None
         linhas.append({"obj": c, "confirmado": confirmado, "rsvp": rsvp_correspondente})
 
@@ -51,10 +72,16 @@ def dashboard(request):
     if busca:
         busca_norm = normalizar_nome(busca)
         exibir = [l for l in exibir if busca_norm in normalizar_nome(l["obj"].nome)]
+    
     exibir.sort(key=lambda l: l["obj"].nome)
 
+    # Paginação de 30 itens por página
+    paginator = Paginator(exibir, 30)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "linhas": exibir,
+        "linhas": page_obj,  # Substituímos a lista completa pela página atual (HTML continua funcionando)
+        "page_obj": page_obj, # Enviado para renderizar os botões Anterior/Próxima
         "rsvps": rsvps,
         "total_lista": total_lista,
         "total_confirmados": total_confirmados,
@@ -64,6 +91,7 @@ def dashboard(request):
         "percentual": percentual,
         "upload_form": UploadPlanilhaForm(),
         "manual_form": ConvidadoManualForm(),
+        "presente_form": PresenteForm(), # Form que será renderizado no seu modal/card
         "busca": busca,
         "status_filtro": status_filtro,
     }
@@ -210,4 +238,16 @@ def excluir_convidado(request, pk):
     convidado = get_object_or_404(ConvidadoLista, pk=pk)
     convidado.delete()
     messages.success(request, "Convidado removido da lista.")
+    return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def adicionar_presente(request):
+    form = PresenteForm(request.POST, request.FILES)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Presente adicionado com sucesso à lista de presentes.")
+    else:
+        messages.error(request, "Não foi possível adicionar o presente. Verifique os campos.")
     return redirect("painel:dashboard")
