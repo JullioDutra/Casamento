@@ -1,6 +1,17 @@
 from django import forms
 
 from .models import ConvidadoLista
+from convite.models import Presente
+
+class PresenteForm(forms.ModelForm):
+    class Meta:
+        model = Presente
+        fields = ["titulo", "descricao", "valor", "chave_pix", "disponivel", "icone"]
+        widgets = {
+            "titulo": forms.TextInput(attrs={"class": "border border-stone-200 rounded px-3 py-2 text-sm w-full"}),
+            "chave_pix": forms.TextInput(attrs={"class": "border border-stone-200 rounded px-3 py-2 text-sm w-full", "placeholder": "Sua chave PIX"}),
+            "valor": forms.NumberInput(attrs={"class": "border border-stone-200 rounded px-3 py-2 text-sm w-full"}),
+        }
 
 
 class UploadPlanilhaForm(forms.Form):
