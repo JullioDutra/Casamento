@@ -1,6 +1,7 @@
 import csv
 import difflib
 import io
+from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -9,9 +10,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from convite.models import RSVP
+from convite.models import Presente, Presenteador, RSVP
 
-from .forms import ConvidadoManualForm, UploadPlanilhaForm, PresenteForm
+from .forms import ConvidadoManualForm, PresenteForm, UploadPlanilhaForm
 from .models import ConvidadoLista
 from .utils import normalizar_nome
 
@@ -40,7 +41,7 @@ def dashboard(request):
     page_number = request.GET.get("page", 1)
 
     rsvps = RSVP.objects.all().order_by("-criado_em")
-    
+
     # Pré-computar nomes normalizados dos RSVPs para otimizar o laço
     rsvps_normalizados = [(normalizar_nome(r.nome_completo), r) for r in rsvps]
 
@@ -49,26 +50,30 @@ def dashboard(request):
 
     for c in ConvidadoLista.objects.all():
         nome_c_norm = normalizar_nome(c.nome)
-        
+
         # Encontra o primeiro RSVP que dê 'match' usando a função flexível
         rsvp_correspondente = next(
-            (r for r_nome_norm, r in rsvps_normalizados if nomes_similares(nome_c_norm, r_nome_norm)), 
-            None
+            (r for r_nome_norm, r in rsvps_normalizados if nomes_similares(nome_c_norm, r_nome_norm)),
+            None,
         )
-        
+
         confirmado = c.confirmado_manual or rsvp_correspondente is not None
-        
+
         # Prioriza a quantidade que a pessoa informou no RSVP do site
-        qtd_final = rsvp_correspondente.quantidade_convidados if rsvp_correspondente else c.quantidade_esperada
-        
+        qtd_final = (
+            rsvp_correspondente.quantidade_convidados
+            if rsvp_correspondente
+            else c.quantidade_esperada
+        )
+
         if confirmado:
             total_pessoas_confirmadas += qtd_final
 
         linhas.append({
-            "obj": c, 
-            "confirmado": confirmado, 
+            "obj": c,
+            "confirmado": confirmado,
             "rsvp": rsvp_correspondente,
-            "qtd_final": qtd_final
+            "qtd_final": qtd_final,
         })
 
     total_lista = len(linhas)
@@ -84,17 +89,36 @@ def dashboard(request):
         exibir = [l for l in exibir if not l["confirmado"]]
     if busca:
         busca_norm = normalizar_nome(busca)
-        exibir = [l for l in exibir if busca_norm in normalizar_nome(l["obj"].nome)]
-    
+        exibir = [
+            l for l in exibir
+            if busca_norm in normalizar_nome(l["obj"].nome)
+            or busca_norm in normalizar_nome(getattr(l["obj"], "grupo", "") or "")
+            or busca_norm in normalizar_nome(getattr(l["obj"], "observacoes", "") or "")
+        ]
+
     exibir.sort(key=lambda l: l["obj"].nome)
 
     # Paginação de 30 itens por página
     paginator = Paginator(exibir, 30)
     page_obj = paginator.get_page(page_number)
 
+    # --- DADOS DE PRESENTES RECEBIDOS E CATÁLOGO ---
+    presentes_recebidos = Presenteador.objects.select_related("presente").all()
+    catalogo_presentes = Presente.objects.prefetch_related("presenteadores").all()
+
+    total_valor_presentes = sum(
+        (p.presente.valor or Decimal("0.00")) for p in presentes_recebidos
+    )
+
+    # Sugere automaticamente o próximo número na sequência de exibição
+    ultima_ordem = (
+        Presente.objects.order_by("-ordem").values_list("ordem", flat=True).first()
+    )
+    proxima_ordem = (ultima_ordem + 1) if ultima_ordem is not None else 1
+
     context = {
         "linhas": page_obj,  # Enviado para não quebrar templates antigos (se houver)
-        "page_obj": page_obj, 
+        "page_obj": page_obj,
         "rsvps": rsvps,
         "total_lista": total_lista,
         "total_confirmados_familias": total_confirmados_familias,
@@ -104,7 +128,10 @@ def dashboard(request):
         "percentual": percentual,
         "upload_form": UploadPlanilhaForm(),
         "manual_form": ConvidadoManualForm(),
-        "presente_form": PresenteForm(),
+        "presente_form": PresenteForm(initial={"disponivel": True, "ordem": proxima_ordem}),
+        "presentes_recebidos": presentes_recebidos,
+        "catalogo_presentes": catalogo_presentes,
+        "total_valor_presentes": total_valor_presentes,
         "busca": busca,
         "status_filtro": status_filtro,
     }
@@ -154,7 +181,7 @@ def upload_planilha(request):
 
     idx_nome = indice("nome", "convidado", "nome completo")
     idx_telefone = indice("telefone", "celular", "contato")
-    idx_qtd = indice("quantidade", "qtd", "acompanhantes", "pessoas")
+    idx_qtd = indice("quantidade", "qtd", "acompanhantes", "pessoas", "quantidade_esperada")
     idx_grupo = indice("grupo", "categoria")
 
     if idx_nome is None:
@@ -194,10 +221,14 @@ def upload_planilha(request):
         if idx_grupo is not None and idx_grupo < len(linha) and linha[idx_grupo]:
             grupo = str(linha[idx_grupo]).strip()
 
-        novos.append(ConvidadoLista(
-            nome=nome, telefone=telefone,
-            quantidade_esperada=quantidade or 1, grupo=grupo,
-        ))
+        novos.append(
+            ConvidadoLista(
+                nome=nome,
+                telefone=telefone,
+                quantidade_esperada=quantidade or 1,
+                grupo=grupo,
+            )
+        )
         nomes_existentes.add(normalizar_nome(nome))
         importados += 1
 
@@ -229,8 +260,8 @@ def baixar_modelo_planilha(request):
 def adicionar_convidado(request):
     form = ConvidadoManualForm(request.POST)
     if form.is_valid():
-        form.save()
-        messages.success(request, "Convidado adicionado à lista.")
+        convidado = form.save()
+        messages.success(request, f"Convidado '{convidado.nome}' adicionado à lista.")
     else:
         messages.error(request, "Verifique os campos e tente novamente.")
     return redirect("painel:dashboard")
@@ -241,7 +272,9 @@ def adicionar_convidado(request):
 def alternar_confirmado(request, pk):
     convidado = get_object_or_404(ConvidadoLista, pk=pk)
     convidado.confirmado_manual = not convidado.confirmado_manual
-    convidado.save()
+    convidado.save(update_fields=["confirmado_manual"])
+    estado = "confirmado" if convidado.confirmado_manual else "pendente"
+    messages.success(request, f"Status de '{convidado.nome}' alterado para {estado}.")
     return redirect("painel:dashboard")
 
 
@@ -249,8 +282,9 @@ def alternar_confirmado(request, pk):
 @require_POST
 def excluir_convidado(request, pk):
     convidado = get_object_or_404(ConvidadoLista, pk=pk)
+    nome = convidado.nome
     convidado.delete()
-    messages.success(request, "Convidado removido da lista.")
+    messages.success(request, f"Convidado '{nome}' removido da lista.")
     return redirect("painel:dashboard")
 
 
@@ -260,8 +294,33 @@ def adicionar_presente(request):
     # Aceita request.FILES para fazer o upload correto da imagem
     form = PresenteForm(request.POST, request.FILES)
     if form.is_valid():
-        form.save()
-        messages.success(request, "Presente adicionado com sucesso à lista de presentes.")
+        presente = form.save()
+        status_txt = "ativo" if presente.disponivel else "oculto"
+        messages.success(
+            request,
+            f"Presente '{presente.titulo}' adicionado na posição #{presente.ordem} ({status_txt}).",
+        )
     else:
         messages.error(request, "Não foi possível adicionar o presente. Verifique os campos.")
+    return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def alternar_presente(request, pk):
+    presente = get_object_or_404(Presente, pk=pk)
+    presente.disponivel = not presente.disponivel
+    presente.save(update_fields=["disponivel"])
+    estado = "ativado no site" if presente.disponivel else "ocultado do site"
+    messages.info(request, f"Presente '{presente.titulo}' foi {estado}.")
+    return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def excluir_presente(request, pk):
+    presente = get_object_or_404(Presente, pk=pk)
+    titulo = presente.titulo
+    presente.delete()
+    messages.success(request, f"Presente '{titulo}' removido da lista.")
     return redirect("painel:dashboard")
