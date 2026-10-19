@@ -15,4 +15,6 @@ urlpatterns = [
     path("convidado/<int:pk>/alternar/", views.alternar_confirmado, name="alternar_confirmado"),
     path("convidado/<int:pk>/excluir/", views.excluir_convidado, name="excluir_convidado"),
     path("adicionar-presente/", views.adicionar_presente, name="adicionar_presente"),
+    path("presente/<int:pk>/alternar/", views.alternar_presente, name="alternar_presente"),
+    path("presente/<int:pk>/excluir/", views.excluir_presente, name="excluir_presente"),
 ]
