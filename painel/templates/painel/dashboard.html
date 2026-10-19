@@ -14,11 +14,9 @@
     .badge-confirmado { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
     .badge-pendente { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
     
-    /* Remove marcador padrão do details */
     details > summary { list-style: none; }
     details > summary::-webkit-details-marker { display: none; }
 
-    /* Estilos para Impressão (Lista de Portaria / Cerimonial) */
     @media print {
       body { background: white !important; color: black !important; }
       .no-print { display: none !important; }
@@ -34,12 +32,16 @@
     <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-5 flex flex-row items-center justify-between">
       <div>
         <span class="font-cormorant text-2xl md:text-3xl font-semibold block leading-none">Painel dos Noivos</span>
-        <span class="text-white/70 text-[10px] md:text-xs uppercase tracking-[0.2em] mt-1 block">Gestão do Casamento</span>
+        <span class="text-white/70 text-[10px] md:text-xs uppercase tracking-[0.2em] mt-1 block">Jullio Cesar & Gabriella</span>
       </div>
       <div class="flex items-center gap-2">
+        <a href="/" target="_blank" class="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-white/90 hover:text-white bg-white/10 hover:bg-white/20 transition-colors rounded-md px-3 py-2" title="Ver site do convite">
+          <i data-lucide="external-link" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Ver Site</span>
+        </a>
         <button onclick="window.print()" class="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-white/90 hover:text-white bg-white/10 hover:bg-white/20 transition-colors rounded-md px-3 py-2" title="Imprimir lista para recepção">
           <i data-lucide="printer" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Imprimir Lista</span>
+          <span class="hidden sm:inline">Imprimir</span>
         </button>
         <form method="post" action="{% url 'painel:logout' %}">
           {% csrf_token %}
@@ -81,9 +83,8 @@
       </div>
     {% endif %}
 
-    <!-- Cards de Estatísticas (Layout Otimizado Mobile & Desktop) -->
+    <!-- Cards de Estatísticas -->
     <div class="grid grid-cols-2 lg:grid-cols-12 gap-3 md:gap-4 no-print">
-      <!-- Card Destaque no Topo do Mobile, e na Direita no Desktop -->
       <div class="col-span-2 lg:col-span-4 lg:order-last bg-gradient-to-br from-[#8A1538] to-[#630d27] text-white rounded-xl p-5 text-center shadow-md flex flex-col justify-center relative overflow-hidden">
         <div class="relative z-10">
           <p class="font-cormorant text-4xl md:text-5xl font-bold">{{ total_pessoas_confirmadas }}</p>
@@ -94,23 +95,23 @@
 
       <div class="col-span-1 lg:col-span-2 bg-white rounded-xl border border-stone-200/80 p-4 text-center shadow-sm flex flex-col justify-center">
         <p class="font-cormorant text-2xl md:text-3xl font-semibold text-stone-800">{{ total_lista }}</p>
-        <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Convites / Famílias</p>
+        <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Convites na Lista</p>
       </div>
 
       <div class="col-span-1 lg:col-span-2 bg-white rounded-xl border border-stone-200/80 p-4 text-center shadow-sm flex flex-col justify-center">
         <p class="font-cormorant text-2xl md:text-3xl font-semibold text-amber-600">{{ total_pendentes }}</p>
-        <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Famílias Pendentes</p>
+        <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Convites Pendentes</p>
       </div>
 
       <div class="col-span-2 lg:col-span-4 bg-white rounded-xl border border-stone-200/80 p-4 text-center shadow-sm flex items-center justify-around">
         <div>
           <p class="font-cormorant text-2xl md:text-3xl font-semibold text-[#8A1538]">{{ total_pessoas_esperadas }}</p>
-          <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Total Esperado</p>
+          <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Pessoas Esperadas</p>
         </div>
         <div class="h-10 w-px bg-stone-100"></div>
-        <div>
-          <p class="font-cormorant text-2xl md:text-3xl font-semibold text-emerald-600">{{ rsvps|length }}</p>
-          <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1">Respostas no Site</p>
+        <div class="cursor-pointer" onclick="ativarAba('presentes')">
+          <p class="font-cormorant text-2xl md:text-3xl font-semibold text-emerald-600">{{ presentes_recebidos|length }}</p>
+          <p class="text-[10px] uppercase tracking-widest text-stone-400 mt-1 underline decoration-stone-300">Presentes Recebidos</p>
         </div>
       </div>
     </div>
@@ -120,7 +121,7 @@
       <div class="flex flex-wrap justify-between items-center text-xs text-stone-600 mb-2 gap-2">
         <span class="font-medium flex items-center gap-1.5">
           <i data-lucide="pie-chart" class="w-4 h-4 text-[#8A1538]"></i>
-          Progresso de Confirmação (Por Família/Convite)
+          Famílias / Convites Confirmados
         </span>
         <span class="font-semibold text-stone-800 bg-stone-100 px-2.5 py-1 rounded-full">
           {{ total_confirmados_familias }} de {{ total_lista }} ({{ percentual }}%)
@@ -134,8 +135,8 @@
     <!-- Área de Cadastros (Acordeão Inteligente no Mobile, 3 Colunas no Desktop) -->
     <div class="space-y-3 no-print">
       <div class="flex items-center justify-between">
-        <h2 class="text-xs font-semibold uppercase tracking-widest text-stone-400">Ações & Cadastros Rápidos</h2>
-        <span class="text-[11px] text-stone-400 lg:hidden">Toque para abrir</span>
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-stone-400">Cadastros Rápidos</h2>
+        <span class="text-[11px] text-stone-400 lg:hidden">Toque nos cartões para abrir</span>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 items-start">
@@ -149,7 +150,7 @@
               </div>
               <div>
                 <h3 class="font-cormorant text-xl font-semibold text-stone-800 leading-none">Adicionar Convidado</h3>
-                <p class="text-stone-400 text-[11px] mt-0.5">Cadastro manual individual</p>
+                <p class="text-stone-400 text-[11px] mt-0.5">Cadastro manual fora da planilha</p>
               </div>
             </div>
             <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 transition-transform group-open:rotate-180 lg:hidden"></i>
@@ -159,8 +160,8 @@
               {% csrf_token %}
               <input type="text" name="nome" placeholder="Nome completo / Família" required class="border border-stone-200 rounded-lg px-3 py-2 text-sm w-full sm:col-span-2 focus:border-[#8A1538] outline-none">
               <input type="text" name="telefone" placeholder="WhatsApp (com DDD)" class="border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:border-[#8A1538] outline-none">
-              <input type="number" name="quantidade_esperada" placeholder="Qtd. Pessoas" min="1" value="1" required class="border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:border-[#8A1538] outline-none" title="Quantidade de pessoas neste convite">
-              <input type="text" name="grupo" placeholder="Grupo (ex: Padrinhos, Família Noiva)" class="border border-stone-200 rounded-lg px-3 py-2 text-sm w-full sm:col-span-2 focus:border-[#8A1538] outline-none">
+              <input type="number" name="quantidade_esperada" placeholder="Qtd. esperada" min="1" value="1" required class="border border-stone-200 rounded-lg px-3 py-2 text-sm w-full focus:border-[#8A1538] outline-none">
+              <input type="text" name="grupo" placeholder="Grupo (ex: Padrinhos, Amigos)" class="border border-stone-200 rounded-lg px-3 py-2 text-sm w-full sm:col-span-2 focus:border-[#8A1538] outline-none">
               <button type="submit" class="w-full sm:col-span-2 inline-flex justify-center items-center gap-2 px-5 py-2.5 bg-stone-800 text-white text-xs uppercase tracking-widest rounded-lg hover:bg-stone-700 transition-colors font-medium">
                 <i data-lucide="check" class="w-3.5 h-3.5"></i> Salvar Convidado
               </button>
@@ -169,7 +170,7 @@
         </details>
 
         <!-- 2. Importar Planilha -->
-        <details class="group bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden">
+        <details class="group bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden" open>
           <summary class="p-4 md:p-5 cursor-pointer flex items-center justify-between bg-white hover:bg-stone-50/50 transition-colors">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-700 flex items-center justify-center">
@@ -177,7 +178,7 @@
               </div>
               <div>
                 <h3 class="font-cormorant text-xl font-semibold text-stone-800 leading-none">Importar Planilha</h3>
-                <p class="text-stone-400 text-[11px] mt-0.5">Envie em lote (.xlsx ou .csv)</p>
+                <p class="text-stone-400 text-[11px] mt-0.5">Envie arquivo .xlsx ou .csv</p>
               </div>
             </div>
             <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 transition-transform group-open:rotate-180 lg:hidden"></i>
@@ -200,8 +201,8 @@
           </div>
         </details>
 
-        <!-- 3. Adicionar Presente -->
-        <details class="group bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden border-t-4 border-t-[#8A1538]">
+        <!-- 3. Adicionar Presente (COM SEQUÊNCIA E CHECKBOX ATIVO) -->
+        <details class="group bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden border-t-4 border-t-[#8A1538]" open>
           <summary class="p-4 md:p-5 cursor-pointer flex items-center justify-between bg-white hover:bg-stone-50/50 transition-colors">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-lg bg-[#8A1538]/10 text-[#8A1538] flex items-center justify-center">
@@ -209,7 +210,7 @@
               </div>
               <div>
                 <h3 class="font-cormorant text-xl font-semibold text-stone-800 leading-none">Adicionar Presente</h3>
-                <p class="text-stone-400 text-[11px] mt-0.5">Lista da loja + Chave PIX</p>
+                <p class="text-stone-400 text-[11px] mt-0.5">Configure item, sequência e PIX</p>
               </div>
             </div>
             <i data-lucide="chevron-down" class="w-4 h-4 text-stone-400 transition-transform group-open:rotate-180 lg:hidden"></i>
@@ -221,10 +222,26 @@
               <div>{{ presente_form.valor }}</div>
               <div>{{ presente_form.icone }}</div>
               <div class="sm:col-span-2">{{ presente_form.chave_pix }}</div>
-              <div class="sm:col-span-2 text-xs">{{ presente_form.imagem }}</div>
+              
+              <!-- Novos campos: Sequência (Ordem) + Status Ativo -->
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-stone-400 mb-1">Sequência (Ordem)</label>
+                {{ presente_form.ordem }}
+              </div>
+              <div class="flex items-end pb-1">
+                <label class="flex items-center gap-2 cursor-pointer bg-emerald-50/70 border border-emerald-200/80 rounded-lg px-3 py-2 w-full text-xs font-medium text-emerald-900 select-none">
+                  {{ presente_form.disponivel }}
+                  <span>Publicar como Ativo</span>
+                </label>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-[10px] uppercase tracking-wider text-stone-400 mb-1">Imagem do Presente</label>
+                {{ presente_form.imagem }}
+              </div>
               
               <button type="submit" class="w-full sm:col-span-2 inline-flex justify-center items-center gap-2 px-5 py-2.5 bg-[#8A1538] text-white text-xs uppercase tracking-widest rounded-lg hover:bg-[#71102d] transition-colors font-medium">
-                Salvar Presente
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Salvar Presente
               </button>
             </form>
           </div>
@@ -233,23 +250,33 @@
       </div>
     </div>
 
-    <!-- Navegação Rápida de Seções (Útil no Mobile) -->
-    <div class="flex gap-2 border-b border-stone-200 pb-2 no-print overflow-x-auto">
-      <a href="#secao-convidados" class="px-4 py-2 rounded-lg bg-[#8A1538] text-white text-xs font-medium uppercase tracking-wider flex items-center gap-2 shrink-0">
-        <i data-lucide="users" class="w-4 h-4"></i> Lista de Convidados
-      </a>
-      <a href="#secao-rsvps" class="px-4 py-2 rounded-lg bg-white border border-stone-200 text-stone-600 hover:border-[#8A1538] text-xs font-medium uppercase tracking-wider flex items-center gap-2 shrink-0">
-        <i data-lucide="message-square-heart" class="w-4 h-4 text-[#8A1538]"></i> Recados & RSVPs do Site
-        <span class="bg-stone-100 text-stone-700 px-1.5 py-0.5 rounded-full text-[10px]">{{ rsvps|length }}</span>
-      </a>
+    <!-- ==========================================
+         BARRA DE ABAS (NAVEGAÇÃO ENTRE SEÇÕES)
+         ========================================== -->
+    <div class="flex gap-2 border-b border-stone-200 pb-3 no-print overflow-x-auto">
+      <button type="button" id="tab-btn-convidados" onclick="ativarAba('convidados')" class="tab-btn px-4 py-2.5 rounded-xl bg-[#8A1538] text-white text-xs font-medium uppercase tracking-wider flex items-center gap-2 shrink-0 shadow-sm transition-all">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        Lista de Convidados
+        <span class="bg-white/20 text-white px-2 py-0.5 rounded-full text-[10px]">{{ total_lista }}</span>
+      </button>
+
+      <button type="button" id="tab-btn-rsvps" onclick="ativarAba('rsvps')" class="tab-btn px-4 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-600 hover:border-[#8A1538] text-xs font-medium uppercase tracking-wider flex items-center gap-2 shrink-0 transition-all">
+        <i data-lucide="message-square-heart" class="w-4 h-4 text-[#8A1538]"></i>
+        Recados & RSVPs do Site
+        <span class="bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full text-[10px]">{{ rsvps|length }}</span>
+      </button>
+
+      <button type="button" id="tab-btn-presentes" onclick="ativarAba('presentes')" class="tab-btn px-4 py-2.5 rounded-xl bg-white border border-stone-200 text-stone-600 hover:border-[#8A1538] text-xs font-medium uppercase tracking-wider flex items-center gap-2 shrink-0 transition-all">
+        <i data-lucide="gift" class="w-4 h-4 text-emerald-600"></i>
+        Presentes Recebidos & Catálogo
+        <span class="bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full text-[10px]">{{ presentes_recebidos|length }}</span>
+      </button>
     </div>
 
     <!-- ==========================================
-         SEÇÃO 1: LISTA DE CONVIDADOS
+         ABA 1: LISTA DE CONVIDADOS
          ========================================== -->
-    <div id="secao-convidados" class="bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden">
-      
-      <!-- Cabeçalho e Filtros da Lista -->
+    <section id="aba-convidados" class="aba-conteudo bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden">
       <div class="p-4 md:p-6 border-b border-stone-100 bg-stone-50/60 space-y-4 no-print">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -266,7 +293,7 @@
         <form method="get" class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
           <div class="relative sm:col-span-5">
             <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-            <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por nome ou observação..." class="w-full border border-stone-200 rounded-lg pl-9 pr-3 py-2 text-sm bg-white focus:border-[#8A1538] outline-none">
+            <input type="text" name="busca" value="{{ busca }}" placeholder="Buscar por nome, grupo ou observação..." class="w-full border border-stone-200 rounded-lg pl-9 pr-3 py-2 text-sm bg-white focus:border-[#8A1538] outline-none">
           </div>
           
           <div class="sm:col-span-3">
@@ -277,7 +304,6 @@
             </select>
           </div>
 
-          <!-- Filtro rápido de Grupo no Cliente (JS) -->
           <div class="sm:col-span-2">
             <select id="filtroGrupoJS" onchange="filtrarPorGrupo(this.value)" class="w-full border border-stone-200 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-[#8A1538]">
               <option value="">Grupo: Todos</option>
@@ -286,7 +312,7 @@
 
           <div class="sm:col-span-2 flex gap-1.5">
             <button type="submit" class="flex-1 px-4 py-2 bg-stone-800 text-white text-xs uppercase tracking-widest rounded-lg hover:bg-stone-700 transition-colors font-medium">
-              Buscar
+              Filtrar
             </button>
             {% if busca or status_filtro != "todos" %}
               <a href="{% url 'painel:dashboard' %}" class="flex items-center justify-center px-3 border border-stone-200 bg-white text-stone-500 rounded-lg hover:bg-stone-100" title="Limpar Filtros">
@@ -297,7 +323,7 @@
         </form>
       </div>
 
-      <!-- VISÃO MOBILE: Cards Empilhados (Aparece apenas em telas pequenas) -->
+      <!-- VISÃO MOBILE: Cards de Convidados -->
       <div class="divide-y divide-stone-100 md:hidden no-print">
         {% for linha in page_obj %}
         <div class="p-4 space-y-3 item-convidado" data-grupo="{{ linha.obj.grupo|default:'Sem Grupo' }}">
@@ -316,7 +342,6 @@
               </div>
             </div>
 
-            <!-- Badge de Status -->
             <div class="text-right shrink-0">
               {% if linha.confirmado %}
                 <span class="badge-confirmado text-[11px] font-medium px-2.5 py-0.5 rounded-full inline-block">Confirmado</span>
@@ -335,17 +360,15 @@
             </p>
           {% endif %}
 
-          <!-- Se confirmou pelo site e deixou recado, mostra botão no card -->
           {% if linha.rsvp and linha.rsvp.mensagem %}
             <button type="button" 
               onclick="abrirModalMensagem('{{ linha.obj.nome|escapejs }}', '{{ linha.rsvp.mensagem|escapejs }}', '{{ linha.rsvp.criado_em|date:'d/m/Y H:i' }}', '{{ linha.obj.telefone|default:''|escapejs }}')"
               class="w-full text-left bg-[#8A1538]/5 hover:bg-[#8A1538]/10 border border-[#8A1538]/20 rounded-lg p-2.5 text-xs text-[#8A1538] flex items-center justify-between transition-colors">
               <span class="truncate pr-2"><i data-lucide="message-circle-heart" class="w-3.5 h-3.5 inline mr-1"></i> "{{ linha.rsvp.mensagem }}"</span>
-              <span class="font-semibold shrink-0 underline">Ler tudo</span>
+              <span class="font-semibold shrink-0 underline">Ler recado</span>
             </button>
           {% endif %}
 
-          <!-- Rodapé do Card Mobile: Contagem + Botões de Ação -->
           <div class="flex items-center justify-between pt-2 border-t border-stone-100 text-xs">
             <div class="flex items-center gap-3">
               <span class="text-stone-400">Esperado: <strong class="text-stone-700">{{ linha.obj.quantidade_esperada }}</strong></span>
@@ -410,8 +433,7 @@
                   {% if linha.rsvp and linha.rsvp.mensagem %}
                     <button type="button" 
                       onclick="abrirModalMensagem('{{ linha.obj.nome|escapejs }}', '{{ linha.rsvp.mensagem|escapejs }}', '{{ linha.rsvp.criado_em|date:'d/m/Y H:i' }}', '{{ linha.obj.telefone|default:''|escapejs }}')"
-                      class="no-print inline-flex items-center gap-1 text-[11px] bg-[#8A1538]/10 text-[#8A1538] px-2 py-0.5 rounded-full hover:bg-[#8A1538] hover:text-white transition-colors"
-                      title="Este convidado deixou um recado!">
+                      class="no-print inline-flex items-center gap-1 text-[11px] bg-[#8A1538]/10 text-[#8A1538] px-2 py-0.5 rounded-full hover:bg-[#8A1538] hover:text-white transition-colors">
                       <i data-lucide="mail" class="w-3 h-3"></i> Ler recado
                     </button>
                   {% endif %}
@@ -434,7 +456,7 @@
               
               <td class="px-4 py-3.5 text-center font-semibold">
                 {% if linha.qtd_final != linha.obj.quantidade_esperada and linha.confirmado %}
-                  <span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-md text-xs" title="Diferente da quantidade esperada ({{ linha.obj.quantidade_esperada }})">
+                  <span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-md text-xs" title="Alterado pelo RSVP do site">
                     {{ linha.qtd_final }} ⚠️
                   </span>
                 {% else %}
@@ -457,18 +479,17 @@
 
               <td class="px-6 py-3.5 no-print">
                 <div class="flex items-center justify-end gap-1.5">
-                  <!-- Botão WhatsApp Inteligente -->
                   {% if linha.obj.telefone %}
                     <a href="#" onclick="enviarWhatsApp(event, '{{ linha.obj.telefone|escapejs }}', '{{ linha.obj.nome|escapejs }}', {{ linha.confirmado|yesno:'true,false' }})"
                        class="p-2 rounded-lg border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition-colors" 
-                       title="{% if linha.confirmado %}Agradecer confirmação no WhatsApp{% else %}Solicitar confirmação no WhatsApp{% endif %}">
+                       title="Chamar no WhatsApp">
                       <i data-lucide="message-circle" class="w-4 h-4"></i>
                     </a>
                   {% endif %}
 
                   <form method="post" action="{% url 'painel:alternar_confirmado' linha.obj.pk %}">
                     {% csrf_token %}
-                    <button type="submit" class="p-2 rounded-lg border {% if linha.confirmado %}border-amber-200 text-amber-600 hover:bg-amber-50{% else %}border-emerald-200 text-emerald-600 hover:bg-emerald-50{% endif %} transition-colors" title="{% if linha.confirmado %}Desmarcar confirmação{% else %}Confirmar presença manualmente{% endif %}">
+                    <button type="submit" class="p-2 rounded-lg border {% if linha.confirmado %}border-amber-200 text-amber-600 hover:bg-amber-50{% else %}border-emerald-200 text-emerald-600 hover:bg-emerald-50{% endif %} transition-colors" title="Alternar confirmação">
                       <i data-lucide="{% if linha.confirmado %}x{% else %}check{% endif %}" class="w-4 h-4"></i>
                     </button>
                   </form>
@@ -485,7 +506,7 @@
             {% empty %}
             <tr>
               <td colspan="6" class="px-6 py-12 text-center text-stone-400">
-                Nenhum registro encontrado para os filtros aplicados.
+                Nenhum registro encontrado.
               </td>
             </tr>
             {% endfor %}
@@ -493,7 +514,6 @@
         </table>
       </div>
 
-      <!-- Paginação -->
       {% if page_obj.has_other_pages %}
       <div class="px-4 md:px-6 py-4 border-t border-stone-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm bg-stone-50 no-print">
         <span class="text-stone-500 text-xs">Página <strong class="text-stone-800">{{ page_obj.number }}</strong> de {{ page_obj.paginator.num_pages }}</span>
@@ -511,17 +531,15 @@
         </div>
       </div>
       {% endif %}
-    </div>
+    </section>
 
     <!-- ==========================================
-         SEÇÃO 2: MURAL DE RECADOS & RSVPs DO SITE
+         ABA 2: MURAL DE RECADOS & RSVPs DO SITE
          ========================================== -->
-    <div id="secao-rsvps" class="bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden no-print">
+    <section id="aba-rsvps" class="aba-conteudo hidden bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden no-print">
       <div class="p-4 md:p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h3 class="font-cormorant text-2xl font-semibold text-[#8A1538] flex items-center gap-2">
-            Confirmações e Recados do Site (RSVP)
-          </h3>
+          <h3 class="font-cormorant text-2xl font-semibold text-[#8A1538]">Confirmações e Recados do Site (RSVP)</h3>
           <p class="text-stone-400 text-xs mt-0.5">Toque em "Ler recado" para abrir a mensagem completa enviada pelos convidados.</p>
         </div>
         <label class="inline-flex items-center gap-2 text-xs text-stone-600 cursor-pointer bg-stone-100 px-3 py-2 rounded-lg self-start sm:self-auto">
@@ -530,7 +548,7 @@
         </label>
       </div>
 
-      <!-- VISÃO MOBILE DOS RSVPs (Cards de Recado) -->
+      <!-- Mobile RSVPs -->
       <div class="divide-y divide-stone-100 md:hidden">
         {% for rsvp in rsvps %}
         <div class="p-4 space-y-2.5 item-rsvp" data-tem-mensagem="{% if rsvp.mensagem %}sim{% else %}nao{% endif %}">
@@ -562,7 +580,7 @@
         {% endfor %}
       </div>
 
-      <!-- VISÃO DESKTOP DOS RSVPs -->
+      <!-- Desktop RSVPs -->
       <div class="hidden md:block overflow-x-auto w-full">
         <table class="w-full text-sm text-left">
           <thead class="bg-stone-50 text-stone-400 text-[11px] uppercase tracking-wider border-b border-stone-100">
@@ -608,15 +626,192 @@
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
+
+    <!-- ==========================================
+         ABA 3: PRESENTES RECEBIDOS & CATÁLOGO
+         ========================================== -->
+    <section id="aba-presentes" class="aba-conteudo hidden space-y-6 no-print">
+      
+      <!-- Sub-bloco 1: Registro de Quem Presenteou -->
+      <div class="bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden">
+        <div class="p-4 md:p-6 border-b border-stone-100 bg-emerald-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-cormorant text-2xl font-semibold text-emerald-900 flex items-center gap-2">
+              <i data-lucide="heart-handshake" class="w-6 h-6 text-emerald-600"></i>
+              Presentes Recebidos (Intenções de PIX no Site)
+            </h3>
+            <p class="text-stone-500 text-xs mt-0.5">Lista de convidados que abriram o QR Code PIX e registraram o nome para vocês agradecerem.</p>
+          </div>
+          <div class="bg-white border border-emerald-200 rounded-xl px-4 py-2.5 text-right shrink-0 shadow-xs">
+            <span class="text-[10px] uppercase tracking-widest text-stone-400 block">Total Estimado (Itens c/ Valor)</span>
+            <span class="font-cormorant text-2xl font-bold text-emerald-700">R$ {{ total_valor_presentes|floatformat:2 }}</span>
+          </div>
+        </div>
+
+        <!-- Mobile: Cards de Presentes Recebidos -->
+        <div class="divide-y divide-stone-100 md:hidden">
+          {% for registro in presentes_recebidos %}
+          <div class="p-4 flex items-center justify-between gap-3">
+            <div class="space-y-1">
+              <span class="font-semibold text-stone-800 text-sm block">{{ registro.nome }}</span>
+              <span class="text-xs text-[#8A1538] font-medium flex items-center gap-1">
+                <i data-lucide="gift" class="w-3.5 h-3.5"></i> {{ registro.presente.titulo }}
+              </span>
+              <span class="text-[11px] text-stone-400 block">{{ registro.criado_em|date:"d/m/Y \à\s H:i" }}</span>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-lg block">
+                {{ registro.presente.valor_exibicao }}
+              </span>
+            </div>
+          </div>
+          {% empty %}
+          <div class="p-8 text-center text-stone-400 text-sm">Nenhum registro de presente recebido ainda.</div>
+          {% endfor %}
+        </div>
+
+        <!-- Desktop: Tabela de Presentes Recebidos -->
+        <div class="hidden md:block overflow-x-auto w-full">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-stone-50 text-stone-400 text-[11px] uppercase tracking-wider border-b border-stone-100">
+              <tr>
+                <th class="px-6 py-3.5 font-medium">Quem Presenteou</th>
+                <th class="px-6 py-3.5 font-medium">Presente Escolhido</th>
+                <th class="px-4 py-3.5 font-medium text-center">Valor do Item</th>
+                <th class="px-6 py-3.5 font-medium text-right">Data e Hora</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              {% for registro in presentes_recebidos %}
+              <tr class="hover:bg-stone-50/60 transition-colors">
+                <td class="px-6 py-3.5 font-semibold text-stone-800 flex items-center gap-2">
+                  <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+                    {{ registro.nome|slice:":1"|upper }}
+                  </span>
+                  {{ registro.nome }}
+                </td>
+                <td class="px-6 py-3.5 text-stone-700 font-medium">
+                  <span class="inline-flex items-center gap-1.5">
+                    <i data-lucide="{{ registro.presente.icone|default:'gift' }}" class="w-4 h-4 text-[#8A1538]"></i>
+                    {{ registro.presente.titulo }}
+                  </span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-md">
+                    {{ registro.presente.valor_exibicao }}
+                  </span>
+                </td>
+                <td class="px-6 py-3.5 text-stone-400 text-xs text-right">{{ registro.criado_em|date:"d/m/Y H:i" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="px-6 py-10 text-center text-stone-400">
+                  Nenhum presente foi registrado pelos convidados no site ainda.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sub-bloco 2: Catálogo de Presentes Cadastrados (Ordem e Status Ativo/Inativo) -->
+      <div class="bg-white rounded-xl border border-stone-200/80 shadow-sm overflow-hidden">
+        <div class="p-4 md:p-6 border-b border-stone-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="font-cormorant text-2xl font-semibold text-[#8A1538]">Catálogo de Presentes no Site</h3>
+            <p class="text-stone-400 text-xs mt-0.5">Gerencie a sequência de exibição e ative ou pause itens da lista pública.</p>
+          </div>
+          <span class="text-xs text-stone-500 bg-stone-100 px-3 py-1.5 rounded-lg self-start sm:self-auto">
+            Total de itens: <strong>{{ catalogo_presentes|length }}</strong>
+          </span>
+        </div>
+
+        <div class="overflow-x-auto w-full">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-stone-50 text-stone-400 text-[11px] uppercase tracking-wider border-b border-stone-100">
+              <tr>
+                <th class="px-4 md:px-6 py-3 font-medium text-center w-20">Seq.</th>
+                <th class="px-4 md:px-6 py-3 font-medium">Item / Presente</th>
+                <th class="px-4 py-3 font-medium text-center">Valor</th>
+                <th class="px-4 py-3 font-medium text-center">Recebidos</th>
+                <th class="px-4 py-3 font-medium text-center">Visibilidade</th>
+                <th class="px-4 md:px-6 py-3 font-medium text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              {% for item in catalogo_presentes %}
+              <tr class="hover:bg-stone-50/50 transition-colors {% if not item.disponivel %}opacity-60 bg-stone-50/40{% endif %}">
+                <td class="px-4 md:px-6 py-3.5 text-center font-mono text-xs font-semibold text-stone-500">
+                  #{{ item.ordem }}
+                </td>
+                <td class="px-4 md:px-6 py-3.5">
+                  <div class="flex items-center gap-3">
+                    {% if item.imagem %}
+                      <img src="{{ item.imagem.url }}" alt="{{ item.titulo }}" class="w-10 h-10 rounded-lg object-cover border border-stone-200 shrink-0">
+                    {% else %}
+                      <div class="w-10 h-10 rounded-lg bg-stone-100 text-[#8A1538] flex items-center justify-center shrink-0">
+                        <i data-lucide="{{ item.icone|default:'gift' }}" class="w-5 h-5"></i>
+                      </div>
+                    {% endif %}
+                    <div>
+                      <span class="font-medium text-stone-800 block">{{ item.titulo }}</span>
+                      <span class="text-[11px] text-stone-400">PIX: {{ item.chave_pix|truncatechars:28 }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-4 py-3.5 text-center font-medium text-stone-700 whitespace-nowrap">
+                  {{ item.valor_exibicao }}
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  <span class="text-xs font-semibold px-2.5 py-1 rounded-full {% if item.presenteadores.count > 0 %}bg-emerald-100 text-emerald-800{% else %}bg-stone-100 text-stone-500{% endif %}">
+                    {{ item.presenteadores.count }}x
+                  </span>
+                </td>
+                <td class="px-4 py-3.5 text-center">
+                  {% if item.disponivel %}
+                    <span class="badge-confirmado text-xs font-medium px-3 py-0.5 rounded-full">Ativo</span>
+                  {% else %}
+                    <span class="bg-stone-200 text-stone-600 text-xs font-medium px-3 py-0.5 rounded-full">Oculto</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 md:px-6 py-3.5 text-right whitespace-nowrap">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <form method="post" action="{% url 'painel:alternar_presente' item.pk %}">
+                      {% csrf_token %}
+                      <button type="submit" class="px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors {% if item.disponivel %}border-amber-200 text-amber-700 hover:bg-amber-50{% else %}border-emerald-200 text-emerald-700 hover:bg-emerald-50{% endif %}" title="{% if item.disponivel %}Pausar/Ocultar do site{% else %}Ativar no site{% endif %}">
+                        {% if item.disponivel %}Ocultar{% else %}Ativar{% endif %}
+                      </button>
+                    </form>
+                    <form method="post" action="{% url 'painel:excluir_presente' item.pk %}" onsubmit="return confirm('Excluir o presente {{ item.titulo|escapejs }}?');">
+                      {% csrf_token %}
+                      <button type="submit" class="p-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors" title="Excluir Presente">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="px-6 py-10 text-center text-stone-400">
+                  Nenhum presente cadastrado ainda. Use o formulário acima para criar o primeiro!
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
 
   </main>
 
-  <!-- ==========================================
-       MODAL PARA LEITURA DE RECADO COMPLETO
-       ========================================== -->
+  <!-- MODAL PARA LEITURA DE RECADO COMPLETO -->
   <div id="modalMensagem" class="fixed inset-0 bg-stone-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-stone-100 relative animate-fade-in">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-stone-100 relative">
       <button onclick="fecharModalMensagem()" class="absolute top-4 right-4 p-2 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-100">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
@@ -650,16 +845,39 @@
   </div>
 
   <script>
-    // Inicializa ícones Lucide
     lucide.createIcons();
 
-    // No mobile (<1024px), fecha os acordeões de cadastro por padrão para economizar espaço vertical
+    // No celular (<1024px), recolhe os formulários por padrão para facilitar o acesso às abas
     if (window.innerWidth < 1024) {
       document.querySelectorAll('details').forEach(el => el.removeAttribute('open'));
     }
 
-    // 1. Popula automaticamente o filtro de Grupos com base nos convidados listados
+    // Controle de Navegação em Abas (Salva a última aba aberta no navegador)
+    function ativarAba(nomeAba) {
+      document.querySelectorAll('.aba-conteudo').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`aba-${nomeAba}`)?.classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-[#8A1538]', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-white', 'border', 'border-stone-200', 'text-stone-600');
+      });
+
+      const btnAtivo = document.getElementById(`tab-btn-${nomeAba}`);
+      if (btnAtivo) {
+        btnAtivo.classList.remove('bg-white', 'border', 'border-stone-200', 'text-stone-600');
+        btnAtivo.classList.add('bg-[#8A1538]', 'text-white', 'shadow-sm');
+      }
+      sessionStorage.setItem('abaPainelNoivos', nomeAba);
+    }
+
+    // Restaura a aba em que o usuário estava antes de recarregar a página
     document.addEventListener('DOMContentLoaded', () => {
+      const abaSalva = sessionStorage.getItem('abaPainelNoivos');
+      if (abaSalva && document.getElementById(`aba-${abaSalva}`)) {
+        ativarAba(abaSalva);
+      }
+
+      // Popula filtro de grupos
       const grupos = new Set();
       document.querySelectorAll('.item-convidado').forEach(el => {
         const g = el.getAttribute('data-grupo');
@@ -677,15 +895,10 @@
     function filtrarPorGrupo(grupoSelecionado) {
       document.querySelectorAll('.item-convidado').forEach(el => {
         const grupoItem = el.getAttribute('data-grupo');
-        if (!grupoSelecionado || grupoItem === grupoSelecionado) {
-          el.style.display = '';
-        } else {
-          el.style.display = 'none';
-        }
+        el.style.display = (!grupoSelecionado || grupoItem === grupoSelecionado) ? '' : 'none';
       });
     }
 
-    // 2. Filtro de RSVPs apenas com recado escrito
     function filtrarRsvpsComMensagem(apenasComMensagem) {
       document.querySelectorAll('.item-rsvp').forEach(el => {
         const tem = el.getAttribute('data-tem-mensagem') === 'sim';
@@ -693,7 +906,6 @@
       });
     }
 
-    // 3. Controle do Modal de Leitura de Mensagens
     function abrirModalMensagem(nome, mensagem, data, telefone) {
       document.getElementById('modalNome').textContent = nome;
       document.getElementById('modalTexto').textContent = mensagem;
@@ -721,12 +933,10 @@
       modal.classList.remove('flex');
     }
 
-    // Fecha modal ao clicar fora da caixa branca
     document.getElementById('modalMensagem').addEventListener('click', function(e) {
       if (e.target === this) fecharModalMensagem();
     });
 
-    // 4. Disparo Inteligente de WhatsApp (Cobrança sutil de RSVP ou Agradecimento)
     function enviarWhatsApp(event, telefone, nome, confirmado) {
       event.preventDefault();
       const numLimpo = (telefone || '').replace(/\D/g, '');
@@ -735,16 +945,12 @@
         return;
       }
       const ddi = numLimpo.startsWith('55') ? numLimpo : `55${numLimpo}`;
-      let mensagem = '';
-      if (confirmado) {
-        mensagem = `Olá, ${nome}! Tudo bem? Passando para agradecer por confirmar presença no nosso casamento. Estamos muito felizes em celebrar esse dia com você! 🥂`;
-      } else {
-        mensagem = `Olá, ${nome}! Tudo bem? Estamos finalizando a organização do nosso casamento e gostaríamos de saber se conseguirá estar conosco para confirmarmos na lista do cerimonial. Podemos confirmar sua presença? 💕`;
-      }
+      const mensagem = confirmado
+        ? `Olá, ${nome}! Tudo bem? Passando para agradecer por confirmar presença no nosso casamento. Estamos muito felizes em celebrar esse dia com você! 🥂`
+        : `Olá, ${nome}! Tudo bem? Estamos finalizando a organização do nosso casamento e gostaríamos de saber se conseguirá estar conosco para confirmarmos na lista do cerimonial. Podemos confirmar sua presença? 💕`;
       window.open(`https://wa.me/${ddi}?text=${encodeURIComponent(mensagem)}`, '_blank');
     }
 
-    // 5. Exportar Tabela Visível para CSV (Excel)
     function exportarTabelaCSV() {
       const linhas = document.querySelectorAll('#tabelaConvidados tbody tr.item-convidado');
       let csv = ['"Convidado";"Telefone";"Grupo";"Qtd Esperada";"Qtd Final";"Status"'];
