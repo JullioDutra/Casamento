@@ -31,3 +31,28 @@ class ConvidadoLista(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class VinculoRSVP(models.Model):
+    """
+    Vincula uma confirmação do site (RSVP) a um convite da lista mestre.
+    Útil quando quem confirmou não está na lista com o próprio nome (ex: o
+    convite está no nome da mãe e o filho confirmou) — a confirmação passa a
+    contar dentro daquele convite.
+    """
+    rsvp = models.OneToOneField(
+        "convite.RSVP", on_delete=models.CASCADE, related_name="vinculo",
+        verbose_name="Confirmação do site",
+    )
+    convidado = models.ForeignKey(
+        ConvidadoLista, on_delete=models.CASCADE, related_name="vinculos",
+        verbose_name="Convite da lista",
+    )
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Vínculo de confirmação"
+        verbose_name_plural = "Vínculos de confirmações"
+
+    def __str__(self):
+        return f"{self.rsvp.nome_completo} → {self.convidado.nome}"
