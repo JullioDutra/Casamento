@@ -1,5 +1,4 @@
 import csv
-import difflib
 import io
 from decimal import Decimal
 
@@ -13,7 +12,8 @@ from django.views.decorators.http import require_POST
 from convite.models import Presente, Presenteador, RSVP
 
 from .forms import ConvidadoManualForm, PresenteForm, UploadPlanilhaForm
-from .models import ConvidadoLista
+from .models import ConvidadoLista, VinculoRSVP
+from .relatorio import gerar_pdf, montar_lista
 from .utils import normalizar_nome
 
 try:
@@ -22,64 +22,21 @@ except ImportError:  # pragma: no cover
     openpyxl = None
 
 
-def nomes_similares(nome1, nome2):
-    """
-    Retorna True se os nomes forem pelo menos 80% parecidos ou se um contiver o outro.
-    Útil para não duplicar confirmações quando há erros de digitação.
-    """
-    if not nome1 or not nome2:
-        return False
-    if nome1 in nome2 or nome2 in nome1:
-        return True
-    return difflib.SequenceMatcher(None, nome1, nome2).ratio() > 0.8
-
-
 @login_required
 def dashboard(request):
     busca = request.GET.get("busca", "").strip()
     status_filtro = request.GET.get("status", "todos")
     page_number = request.GET.get("page", 1)
 
-    rsvps = RSVP.objects.all().order_by("-criado_em")
+    rsvps = RSVP.objects.select_related("vinculo__convidado").order_by("-criado_em")
+    linhas, rsvps_sem_vinculo = montar_lista()
 
-    # Pré-computar nomes normalizados dos RSVPs para otimizar o laço
-    rsvps_normalizados = [(normalizar_nome(r.nome_completo), r) for r in rsvps]
-
-    linhas = []
-    total_pessoas_confirmadas = 0
-
-    for c in ConvidadoLista.objects.all():
-        nome_c_norm = normalizar_nome(c.nome)
-
-        # Encontra o primeiro RSVP que dê 'match' usando a função flexível
-        rsvp_correspondente = next(
-            (r for r_nome_norm, r in rsvps_normalizados if nomes_similares(nome_c_norm, r_nome_norm)),
-            None,
-        )
-
-        confirmado = c.confirmado_manual or rsvp_correspondente is not None
-
-        # Prioriza a quantidade que a pessoa informou no RSVP do site
-        qtd_final = (
-            rsvp_correspondente.quantidade_convidados
-            if rsvp_correspondente
-            else c.quantidade_esperada
-        )
-
-        if confirmado:
-            total_pessoas_confirmadas += qtd_final
-
-        linhas.append({
-            "obj": c,
-            "confirmado": confirmado,
-            "rsvp": rsvp_correspondente,
-            "qtd_final": qtd_final,
-        })
-
+    total_pessoas_confirmadas = sum(l["qtd_confirmada"] for l in linhas if l["confirmado"])
     total_lista = len(linhas)
     total_confirmados_familias = sum(1 for l in linhas if l["confirmado"])
     total_pendentes = total_lista - total_confirmados_familias
     total_pessoas_esperadas = sum(l["obj"].quantidade_esperada for l in linhas)
+    total_pessoas_faltando = sum(l["faltam"] for l in linhas)
     percentual = round((total_confirmados_familias / total_lista) * 100) if total_lista else 0
 
     exibir = linhas
@@ -125,6 +82,9 @@ def dashboard(request):
         "total_pessoas_confirmadas": total_pessoas_confirmadas,
         "total_pendentes": total_pendentes,
         "total_pessoas_esperadas": total_pessoas_esperadas,
+        "total_pessoas_faltando": total_pessoas_faltando,
+        "rsvps_sem_vinculo": rsvps_sem_vinculo,
+        "convites_lista": ConvidadoLista.objects.all(),
         "percentual": percentual,
         "upload_form": UploadPlanilhaForm(),
         "manual_form": ConvidadoManualForm(),
@@ -324,3 +284,37 @@ def excluir_presente(request, pk):
     presente.delete()
     messages.success(request, f"Presente '{titulo}' removido da lista.")
     return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def vincular_rsvp(request, pk):
+    rsvp = get_object_or_404(RSVP, pk=pk)
+    convidado = ConvidadoLista.objects.filter(pk=request.POST.get("convidado")).first()
+    if not convidado:
+        messages.error(request, "Escolha o convite da lista para vincular.")
+        return redirect("painel:dashboard")
+    VinculoRSVP.objects.update_or_create(rsvp=rsvp, defaults={"convidado": convidado})
+    messages.success(
+        request,
+        f"'{rsvp.nome_completo}' ({rsvp.quantidade_convidados}) vinculado ao convite de '{convidado.nome}'.",
+    )
+    return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def desvincular_rsvp(request, pk):
+    vinculo = get_object_or_404(VinculoRSVP, rsvp_id=pk)
+    nome = vinculo.rsvp.nome_completo
+    vinculo.delete()
+    messages.info(request, f"Vínculo de '{nome}' removido.")
+    return redirect("painel:dashboard")
+
+
+@login_required
+def relatorio_pdf(request):
+    linhas, sem_vinculo = montar_lista()
+    response = HttpResponse(gerar_pdf(linhas, sem_vinculo), content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="relatorio_confirmacoes.pdf"'
+    return response
