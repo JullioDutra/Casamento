@@ -47,11 +47,12 @@ def montar_lista():
         extras = vinculados.get(c.pk, [])
         rsvps_c = ([auto] if auto else []) + extras
 
-        confirmado = c.confirmado_manual or bool(rsvps_c)
+        confirmado = c.confirmado_manual or bool(rsvps_c) or c.confirmados_extra > 0
         if rsvps_c:
             qtd = sum(r.quantidade_convidados for r in rsvps_c)
         else:
-            qtd = c.quantidade_esperada if confirmado else 0
+            qtd = c.quantidade_esperada if c.confirmado_manual else 0
+        qtd += c.confirmados_extra
 
         linhas.append({
             "obj": c,
@@ -121,6 +122,8 @@ def gerar_pdf(linhas, sem_vinculo):
         quem = []
         if l["obj"].confirmado_manual:
             quem.append("manual")
+        if l["obj"].confirmados_extra:
+            quem.append(f"+{l['obj'].confirmados_extra} pelos noivos")
         quem += [f"{r.nome_completo} ({r.quantidade_convidados})" for r in l["rsvps_todos"]]
         dados.append([p(l["obj"].nome), p(l["obj"].grupo or "—"), l["qtd_confirmada"],
                       l["obj"].quantidade_esperada, l["faltam"], p(", ".join(quem))])

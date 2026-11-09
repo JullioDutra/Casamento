@@ -1,7 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 
-from . import views
+from . import api, views
 
 app_name = "painel"
 
@@ -13,6 +13,8 @@ urlpatterns = [
     path("modelo-planilha/", views.baixar_modelo_planilha, name="modelo_planilha"),
     path("convidado/adicionar/", views.adicionar_convidado, name="adicionar_convidado"),
     path("convidado/<int:pk>/alternar/", views.alternar_confirmado, name="alternar_confirmado"),
+    path("convidado/<int:pk>/confirmar-restante/", views.confirmar_restante, name="confirmar_restante"),
+    path("convidado/<int:pk>/desfazer-restante/", views.desfazer_restante, name="desfazer_restante"),
     path("convidado/<int:pk>/excluir/", views.excluir_convidado, name="excluir_convidado"),
     path("relatorio-pdf/", views.relatorio_pdf, name="relatorio_pdf"),
     path("rsvp/<int:pk>/vincular/", views.vincular_rsvp, name="vincular_rsvp"),
@@ -20,4 +22,8 @@ urlpatterns = [
     path("adicionar-presente/", views.adicionar_presente, name="adicionar_presente"),
     path("presente/<int:pk>/alternar/", views.alternar_presente, name="alternar_presente"),
     path("presente/<int:pk>/excluir/", views.excluir_presente, name="excluir_presente"),
+    path("api/resumo/", api.api_resumo, name="api_resumo"),
+    path("api/convidados/", api.api_convidados, name="api_convidados"),
+    path("api/convidados/<int:pk>/", api.api_convidado, name="api_convidado"),
+    path("api/confirmacoes/", api.api_confirmacoes, name="api_confirmacoes"),
 ]
