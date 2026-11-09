@@ -84,6 +84,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# API do painel (bots externos) — ver painel/api.py
+PAINEL_API_TOKEN = os.environ.get("PAINEL_API_TOKEN", "")
+PAINEL_WEBHOOK_URL = os.environ.get("PAINEL_WEBHOOK_URL", "")
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Painel restrito dos noivos: sem cadastro público, só usuários criados via

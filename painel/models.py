@@ -22,6 +22,10 @@ class ConvidadoLista(models.Model):
         "Confirmado manualmente pelos noivos", default=False,
         help_text="Marque se o convidado confirmou por fora do site (WhatsApp, telefone etc).",
     )
+    confirmados_extra = models.PositiveSmallIntegerField(
+        "Pessoas confirmadas pelos noivos", default=0,
+        help_text="Pessoas do convite confirmadas no painel além das que confirmaram pelo site.",
+    )
     criado_em = models.DateTimeField("Adicionado em", auto_now_add=True)
 
     class Meta:

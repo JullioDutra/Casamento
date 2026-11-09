@@ -1,9 +1,16 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Painel dos Noivos — Gestão</title>
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'img/favicon-32.png' %}" sizes="32x32" type="image/png">
+  <link rel="alternate icon" href="{% static 'favicon.ico' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'site.webmanifest' %}">
+  <meta name="theme-color" content="#8A1538">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -408,6 +415,23 @@
                 </a>
               {% endif %}
 
+              {% if linha.confirmado and linha.faltam %}
+              <form method="post" action="{% url 'painel:confirmar_restante' linha.obj.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="px-3 py-2 rounded-lg border border-emerald-200 text-emerald-700 bg-emerald-50/50 font-medium flex items-center gap-1" title="Confirmar as {{ linha.faltam }} pessoa(s) que faltam deste convite">
+                  <i data-lucide="check-check" class="w-3.5 h-3.5"></i> Restante ({{ linha.faltam }})
+                </button>
+              </form>
+              {% endif %}
+              {% if linha.obj.confirmados_extra %}
+              <form method="post" action="{% url 'painel:desfazer_restante' linha.obj.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="p-2 rounded-lg border border-amber-200 text-amber-700 bg-amber-50/50" title="Desfazer as {{ linha.obj.confirmados_extra }} confirmação(ões) extras">
+                  <i data-lucide="undo-2" class="w-4 h-4"></i>
+                </button>
+              </form>
+              {% endif %}
+
               <form method="post" action="{% url 'painel:alternar_confirmado' linha.obj.pk %}">
                 {% csrf_token %}
                 <button type="submit" class="px-3 py-2 rounded-lg border font-medium flex items-center gap-1 {% if linha.confirmado %}border-amber-200 text-amber-700 bg-amber-50/50{% else %}border-emerald-200 text-emerald-700 bg-emerald-50/50{% endif %}">
@@ -515,6 +539,23 @@
                        title="Chamar no WhatsApp">
                       <i data-lucide="message-circle" class="w-4 h-4"></i>
                     </a>
+                  {% endif %}
+
+                  {% if linha.confirmado and linha.faltam %}
+                  <form method="post" action="{% url 'painel:confirmar_restante' linha.obj.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="px-2.5 py-2 rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors text-xs font-medium flex items-center gap-1" title="Confirmar as {{ linha.faltam }} pessoa(s) que faltam deste convite">
+                      <i data-lucide="check-check" class="w-4 h-4"></i> Restante ({{ linha.faltam }})
+                    </button>
+                  </form>
+                  {% endif %}
+                  {% if linha.obj.confirmados_extra %}
+                  <form method="post" action="{% url 'painel:desfazer_restante' linha.obj.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="p-2 rounded-lg border border-amber-200 text-amber-600 hover:bg-amber-50 transition-colors" title="Desfazer as {{ linha.obj.confirmados_extra }} confirmação(ões) extras">
+                      <i data-lucide="undo-2" class="w-4 h-4"></i>
+                    </button>
+                  </form>
                   {% endif %}
 
                   <form method="post" action="{% url 'painel:alternar_confirmado' linha.obj.pk %}">

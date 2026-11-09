@@ -232,9 +232,33 @@ def adicionar_convidado(request):
 def alternar_confirmado(request, pk):
     convidado = get_object_or_404(ConvidadoLista, pk=pk)
     convidado.confirmado_manual = not convidado.confirmado_manual
-    convidado.save(update_fields=["confirmado_manual"])
+    if not convidado.confirmado_manual:
+        convidado.confirmados_extra = 0
+    convidado.save(update_fields=["confirmado_manual", "confirmados_extra"])
     estado = "confirmado" if convidado.confirmado_manual else "pendente"
     messages.success(request, f"Status de '{convidado.nome}' alterado para {estado}.")
+    return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def confirmar_restante(request, pk):
+    convidado = get_object_or_404(ConvidadoLista, pk=pk)
+    linha = next(l for l in montar_lista()[0] if l["obj"].pk == pk)
+    if linha["faltam"]:
+        convidado.confirmados_extra += linha["faltam"]
+        convidado.save(update_fields=["confirmados_extra"])
+        messages.success(request, f"Mais {linha['faltam']} pessoa(s) do convite de '{convidado.nome}' confirmadas.")
+    return redirect("painel:dashboard")
+
+
+@login_required
+@require_POST
+def desfazer_restante(request, pk):
+    convidado = get_object_or_404(ConvidadoLista, pk=pk)
+    convidado.confirmados_extra = 0
+    convidado.save(update_fields=["confirmados_extra"])
+    messages.info(request, f"Confirmações extras do convite de '{convidado.nome}' desfeitas.")
     return redirect("painel:dashboard")
 
 
